@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-outfit);
+  --font-display: var(--font-barlow);
+  --color-lagoon: #0c3d66;
+  --color-pool: #1c8ea3;
+  --color-tide: #14627a;
+  --color-foam: #f4fafc;
+  --color-sand: #e7f3f7;
+  --color-coral: #c2410c;
+  --color-ink: #102433;
+  --color-line: #d3e4ec;
+  --color-card: #ffffff;
+}
+
+body {
+  font-family: var(--font-outfit), sans-serif;
+  background:
+    radial-gradient(1100px 520px at 100% -12%, rgba(28, 142, 163, 0.2), transparent 58%),
+    radial-gradient(820px 420px at -12% -8%, rgba(12, 61, 102, 0.1), transparent 52%),
+    #f3f8fb;
+  color: var(--color-ink);
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-barlow), sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.bg-card {
+  box-shadow: 0 18px 44px -34px rgba(12, 61, 102, 0.95);
+}
+
+input,
+select,
+textarea {
+  accent-color: var(--color-pool);
+}
