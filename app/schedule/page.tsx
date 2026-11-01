@@ -5,7 +5,7 @@ import { addDays, mondayOf, todayISO } from "@/lib/dates";
 import { bookingCounts, getSettings, listSessionsBetween } from "@/lib/queries";
 import { weekBounds } from "@/lib/dates";
 
-export const metadata = { title: "Week" };
+export const metadata = { title: "Class" };
 
 function weekStart(value: string | undefined, timeZone: string) {
   if (value && /^\d{4}-\d{2}-\d{2}$/.test(value)) return mondayOf(value);
@@ -33,7 +33,7 @@ export default async function SchedulePage({
       <main className="mx-auto w-full max-w-6xl px-4 pb-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h1 className="text-4xl text-lagoon">The week</h1>
+            <h1 className="text-4xl text-lagoon">Class</h1>
             <p className="mt-2 text-sm text-ink/70">Times in {settings.timezone}. Each class shows spots left.</p>
           </div>
           <div className="flex gap-2 text-sm">

@@ -23,7 +23,7 @@ export default async function HomePage() {
               <SessionCards sessions={sessions} timeZone={settings.timezone} counts={counts} />
             </div>
             <Link href="/schedule" className="mt-4 inline-block text-sm font-medium text-pool">
-              Open the full week
+              Open the full class
             </Link>
           </div>
           <div>

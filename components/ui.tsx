@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { PublicNav, type PublicNavLink } from "@/components/public-nav";
 
 export const inputClass =
   "mt-1 w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none transition focus:border-pool focus:ring-4 focus:ring-pool/10";
@@ -94,48 +95,114 @@ export function Flash({ error, notice }: { error?: string; notice?: string }) {
   return null;
 }
 
-const publicLinks = [
-  { href: "/schedule", label: "Week" },
-  { href: "/events", label: "Events" },
-  { href: "/packages", label: "Packs" },
+const publicLinks: PublicNavLink[] = [
+  { href: "/", label: "Home" },
+  {
+    href: "/schedule",
+    label: "Inscription",
+    children: [
+      { href: "/schedule", label: "Regular Class" },
+      { href: "/events", label: "Special Events" },
+      { href: "/packages", label: "Special Packs" },
+    ],
+  },
+  {
+    href: "/about",
+    label: "Our Story",
+    children: [
+      { href: "/about", label: "About Us" },
+      { href: "/reviews", label: "Customer Review" },
+      { href: "/support", label: "Customer Support" },
+    ],
+  },
+  { href: "/careers", label: "Careers" },
+  { href: "/studio", label: "Studio" },
 ];
+
+const bookNowClass =
+  "inline-flex items-center rounded-[4px] bg-lagoon px-3.5 py-2 text-sm font-medium leading-none text-white transition-colors hover:bg-ink";
 
 export function PublicHeader() {
   return (
-    <header className="sticky top-0 z-20 border-b border-line/70 bg-[#f4f9fb]/95 backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3">
-        <Link href="/" className="shrink-0" aria-label="Hydrofit home">
-          <BrandMark hideNameOnMobile />
-        </Link>
-        <nav className="flex items-center gap-1 text-sm font-medium">
-          {publicLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-full px-3 py-1.5 text-ink/75 transition hover:bg-sand hover:text-lagoon"
-            >
-              {link.label}
-            </Link>
-          ))}
-          <Link
-            href="/studio"
-            className="rounded-full bg-lagoon px-3.5 py-1.5 text-white shadow-sm transition hover:bg-tide"
-          >
-            Studio
+    <header className="sticky top-0 z-20">
+      <div className="h-1.5 w-full bg-lagoon" aria-hidden="true" />
+      <div className="border-b border-black/[0.06] bg-white/95 backdrop-blur-xl">
+        <div className="relative mx-auto flex h-[4.5rem] w-full max-w-6xl items-center justify-between px-4 md:h-20 md:px-6">
+          <Link href="/" className="shrink-0" aria-label="Hydrofit home">
+            <BrandMark hideNameOnMobile />
           </Link>
-        </nav>
+          <PublicNav
+            links={publicLinks}
+            className="absolute left-1/2 hidden -translate-x-1/2 items-center lg:flex"
+          />
+          <Link href="/schedule" className={bookNowClass}>
+            Book now
+          </Link>
+        </div>
+        <PublicNav
+          links={publicLinks}
+          className="flex items-center justify-center gap-0.5 border-t border-black/[0.06] px-2 py-1 lg:hidden"
+        />
       </div>
     </header>
   );
 }
 
 export function SiteFooter() {
+  const year = new Date().getFullYear();
   return (
-    <footer className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-12 sm:flex-row sm:items-end sm:justify-between">
-      <BrandMark size="sm" />
-      <p className="max-w-sm text-sm leading-6 text-ink/55">
-        12 Vo Truong Toan, Ho Chi Minh City. Bookings are taken at the studio desk.
-      </p>
+    <footer className="mt-16 border-t border-black/[0.06] bg-white">
+      <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-12 md:grid-cols-[1.4fr_1fr] md:px-10">
+        <div>
+          <BrandMark size="sm" />
+          <p className="mt-5 text-base leading-6 text-ink">Ho Chi Minh City</p>
+          <p className="text-base leading-6 text-ink/60">12 Vo Truong Toan</p>
+        </div>
+        <div>
+          <p className="font-display text-lg text-ink">Menu</p>
+          <ul className="mt-4 space-y-2.5">
+            {publicLinks
+              .flatMap((link) => (link.children?.length ? link.children : [link]))
+              .map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-base leading-6 text-ink/60 transition-colors hover:text-pool"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            <li>
+              <Link
+                href="/schedule"
+                className="text-base leading-6 text-ink/60 transition-colors hover:text-pool"
+              >
+                Book now
+              </Link>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div className="border-t border-black/[0.06]">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-6 py-6 sm:flex-row md:px-10">
+          <p className="font-display text-lg text-ink/55">© {year} Hydrofit. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <Link
+              href="/terms"
+              className="text-sm font-medium text-ink transition-colors hover:text-pool"
+            >
+              Terms of Service
+            </Link>
+            <Link
+              href="/privacy"
+              className="text-sm font-medium text-ink transition-colors hover:text-pool"
+            >
+              Privacy Policy
+            </Link>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 }

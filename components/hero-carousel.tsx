@@ -48,7 +48,7 @@ export function HeroCarousel() {
   return (
     <section aria-roledescription="carousel" aria-label="Hydrofit">
       <div
-        className="relative overflow-hidden rounded-[2rem] bg-[linear-gradient(135deg,#082f4d_0%,#0e4c73_52%,#1a8aa0_100%)] text-white shadow-[0_28px_70px_-36px_rgba(8,47,77,0.85)]"
+        className="relative overflow-hidden rounded-lg bg-[linear-gradient(135deg,#1a78d6_0%,#2f9eef_55%,#5ec8f5_100%)] text-white shadow-[0_24px_50px_-32px_rgba(26,120,214,0.7)]"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onFocusCapture={() => setPaused(true)}
@@ -71,14 +71,14 @@ export function HeroCarousel() {
           }`}
         >
           <Image
-            src="/brand/pool-class.jpg"
+            src="/brand/banner.jpg"
             alt=""
             fill
             priority
             sizes="(min-width: 72rem) 72rem, 100vw"
-            className="object-cover"
+            className="object-cover object-[center_42%]"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(4,22,38,0.84)_0%,rgba(4,22,38,0.55)_32%,rgba(4,22,38,0.12)_62%,rgba(4,22,38,0.35)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(12,86,176,0.5)_0%,rgba(20,120,200,0.22)_32%,rgba(255,255,255,0)_62%)]" />
           <div className="relative z-10 max-w-xl">
             <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/75">Aquafitness</p>
             <h1 className="mt-3 text-5xl uppercase leading-[0.92] tracking-[0.03em] text-white md:text-7xl">
@@ -91,7 +91,7 @@ export function HeroCarousel() {
                 href="/schedule"
                 className="rounded-full bg-white px-5 py-2.5 text-sm font-medium text-lagoon shadow-sm transition hover:bg-foam"
               >
-                See the week
+                See the class
               </Link>
               <Link
                 href="/packages"
@@ -156,7 +156,7 @@ export function HeroCarousel() {
       </div>
 
       <div
-        className="mt-4 flex items-center justify-center gap-1"
+        className="mt-4 flex items-center justify-center gap-2"
         onKeyDown={(event) => {
           if (event.key === "ArrowLeft") {
             event.preventDefault();
@@ -167,14 +167,6 @@ export function HeroCarousel() {
           }
         }}
       >
-        <button
-          type="button"
-          aria-label="Previous banner"
-          onClick={() => go(index - 1)}
-          className="grid h-9 w-9 place-items-center rounded-full text-lagoon transition hover:bg-sand"
-        >
-          <Chevron direction="left" />
-        </button>
         {slides.map((slide, slideIndex) => (
           <button
             key={slide.id}
@@ -182,35 +174,12 @@ export function HeroCarousel() {
             aria-label={`Show ${slide.label}`}
             aria-current={index === slideIndex ? "true" : undefined}
             onClick={() => go(slideIndex)}
-            className={`rounded-full px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] transition ${
-              index === slideIndex ? "bg-lagoon text-white" : "text-lagoon/70 hover:bg-sand"
+            className={`h-2.5 w-2.5 rounded-full transition ${
+              index === slideIndex ? "bg-lagoon" : "bg-lagoon/30 hover:bg-lagoon/55"
             }`}
-          >
-            {slide.label}
-          </button>
+          />
         ))}
-        <button
-          type="button"
-          aria-label="Next banner"
-          onClick={() => go(index + 1)}
-          className="grid h-9 w-9 place-items-center rounded-full text-lagoon transition hover:bg-sand"
-        >
-          <Chevron direction="right" />
-        </button>
       </div>
     </section>
-  );
-}
-
-function Chevron({ direction }: { direction: "left" | "right" }) {
-  return (
-    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 fill-none stroke-current">
-      <path
-        d={direction === "left" ? "M12.5 4.5 7 10l5.5 5.5" : "M7.5 4.5 13 10l-5.5 5.5"}
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }

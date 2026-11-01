@@ -39,7 +39,7 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
             Spots are booked at the studio desk. A pack stops when its credits are used up.
           </p>
           <Link href="/schedule" className="mt-4 inline-block text-sm font-medium text-pool">
-            Back to the week
+            Back to the class
           </Link>
         </div>
       </main>
