@@ -66,8 +66,10 @@ export function HeroCarousel() {
           aria-label="Classes"
           aria-hidden={index !== 0}
           inert={index !== 0}
-          className={`relative col-start-1 row-start-1 flex min-h-[24rem] items-end overflow-hidden px-8 pb-10 pt-10 transition-opacity duration-500 motion-reduce:transition-none md:aspect-video md:min-h-0 md:px-12 md:pb-14 md:pt-14 ${
-            index === 0 ? "z-10 opacity-100" : "pointer-events-none z-0 opacity-0"
+          className={`col-start-1 row-start-1 flex items-end overflow-hidden px-8 pb-10 pt-10 transition-opacity duration-500 motion-reduce:transition-none md:px-12 md:pb-14 md:pt-14 ${
+            index === 0
+              ? "relative z-10 min-h-[24rem] opacity-100 md:aspect-video md:min-h-0"
+              : "pointer-events-none absolute inset-0 z-0 opacity-0"
           }`}
         >
           <Image
@@ -109,36 +111,101 @@ export function HeroCarousel() {
           aria-label="Location"
           aria-hidden={index !== 1}
           inert={index !== 1}
-          className={`col-start-1 row-start-1 flex items-center px-8 py-10 transition-opacity duration-500 motion-reduce:transition-none md:px-12 md:py-12 ${
-            index === 1 ? "z-10 opacity-100" : "pointer-events-none z-0 opacity-0"
+          className={`col-start-1 row-start-1 flex overflow-hidden transition-opacity duration-500 motion-reduce:transition-none ${
+            index === 1
+              ? "relative z-10 min-h-[32rem] opacity-100 md:min-h-[36rem]"
+              : "pointer-events-none absolute inset-0 z-0 opacity-0"
           }`}
         >
-          <div className="flex w-full flex-col items-start gap-8 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/70">Find us</p>
-              <h2 className="mt-3 max-w-xl text-5xl uppercase tracking-[0.04em] text-white md:text-6xl">
-                {street}
+          <Image
+            src="/brand/hcmc-skyline.jpg"
+            alt=""
+            fill
+            sizes="(min-width: 72rem) 72rem, 100vw"
+            className="object-cover object-[center_42%]"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(10,46,96,0.78)_0%,rgba(16,78,150,0.4)_38%,rgba(30,110,190,0.08)_68%,rgba(255,255,255,0)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(8,32,64,0.28),transparent_36%)]" />
+
+          <div className="relative z-10 flex w-full flex-col justify-center gap-8 px-6 py-8 md:flex-row md:items-center md:justify-between md:gap-10 md:px-12 md:py-12">
+            <div className="max-w-xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/75">The studio</p>
+              <h2 className="mt-3 text-5xl uppercase leading-[0.9] tracking-[0.03em] text-white drop-shadow-[0_8px_24px_rgba(0,0,0,0.35)] md:text-7xl">
+                12 Vo
+                <br />
+                Truong Toan
               </h2>
-              <p className="mt-4 text-lg text-white/80">{city}</p>
-              <a
-                href={directionsHref}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-8 inline-flex rounded-full bg-white px-5 py-2.5 text-sm font-medium text-lagoon shadow-sm transition hover:bg-foam"
-              >
-                Get directions
-              </a>
-            </div>
-            <figure className="w-full md:w-96 md:shrink-0">
-              <div className="relative h-56 overflow-hidden rounded-[1.5rem] bg-white shadow-[0_20px_50px_-20px_rgba(0,0,0,0.45)] ring-4 ring-white/25 md:h-64">
-                <iframe
-                  title={`Map to ${address}`}
-                  src={mapSrc}
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="absolute inset-x-0 top-0 h-[calc(100%+4.75rem)] w-full border-0"
-                />
+              <p className="mt-4 flex items-center gap-2 text-sm text-white/85">
+                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/15 ring-1 ring-white/30">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-white">
+                    <path d="M12 2.2c-3.7 0-6.7 2.9-6.7 6.6 0 4.9 6.7 12.9 6.7 12.9s6.7-8 6.7-12.9c0-3.7-3-6.6-6.7-6.6zm0 9a2.4 2.4 0 1 1 0-4.8 2.4 2.4 0 0 1 0 4.8z" />
+                  </svg>
+                </span>
+                {city}
+              </p>
+              <p className="mt-4 max-w-md text-base leading-7 text-white/80">
+                The same pool the first groups trained in. Ask at the desk if you want to see the water before your first class.
+              </p>
+              <ul className="mt-6 grid max-w-md grid-cols-3 gap-2">
+                {[
+                  ["45 min", "Each class"],
+                  ["Up to 10", "In a group"],
+                  ["One pool", "Since day one"],
+                ].map(([value, label]) => (
+                  <li
+                    key={label}
+                    className="rounded-2xl border border-white/20 bg-white/10 px-3 py-3 backdrop-blur-md"
+                  >
+                    <p className="font-display text-xl leading-none tracking-wide text-white md:text-2xl">{value}</p>
+                    <p className="mt-1.5 text-[11px] leading-4 text-white/70">{label}</p>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <a
+                  href={directionsHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full bg-white px-5 py-2.5 text-sm font-medium text-lagoon shadow-sm transition hover:bg-foam"
+                >
+                  Get directions
+                </a>
+                <Link
+                  href="/about"
+                  className="rounded-full border border-white/35 px-5 py-2.5 text-sm text-white transition hover:bg-white/10"
+                >
+                  Our story
+                </Link>
               </div>
-              <figcaption className="mt-2 text-center text-[11px] text-white/60">
+            </div>
+
+            <figure className="w-full md:w-[22.5rem] md:shrink-0">
+              <div className="overflow-hidden rounded-[1.35rem] bg-white text-ink shadow-[0_30px_60px_-28px_rgba(0,0,0,0.65)] ring-1 ring-white/80">
+                <div className="relative h-36 overflow-hidden bg-sand md:h-52">
+                  <iframe
+                    title={`Map to ${address}`}
+                    src={mapSrc}
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="pointer-events-none absolute inset-x-0 -top-16 h-[calc(100%+9rem)] w-full border-0 md:pointer-events-auto"
+                  />
+                </div>
+                <div className="flex items-end justify-between gap-3 px-4 py-3.5">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.26em] text-pool">Visit</p>
+                    <p className="mt-1 font-display text-[1.55rem] leading-none tracking-wide text-lagoon">{street}</p>
+                    <p className="mt-1 text-sm text-ink/60">{city}</p>
+                  </div>
+                  <a
+                    href={directionsHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="shrink-0 text-sm font-medium text-lagoon underline decoration-lagoon/30 underline-offset-4 hover:decoration-lagoon"
+                  >
+                    Directions
+                  </a>
+                </div>
+              </div>
+              <figcaption className="mt-2 text-right text-[11px] text-white/70">
                 <a
                   href="https://www.openstreetmap.org/copyright"
                   target="_blank"
