@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { PublicNav, type PublicNavLink } from "@/components/public-nav";
+import { JoinBand } from "@/components/marketing";
+import { SiteHeader } from "@/components/site-header";
+import { getI18n } from "@/lib/i18n";
 
 export const inputClass =
   "mt-1 w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none transition focus:border-pool focus:ring-4 focus:ring-pool/10";
@@ -33,7 +35,7 @@ export function BrandMark({
       <span className={`leading-none ${hideNameOnMobile ? "hidden sm:block" : ""}`}>
         <span
           className={`block font-display text-[1.35rem] font-semibold tracking-[0.16em] ${
-            tone === "light" ? "text-white" : "text-lagoon"
+            tone === "light" ? "text-white" : "text-black"
           }`}
         >
           HYDROFIT
@@ -95,114 +97,79 @@ export function Flash({ error, notice }: { error?: string; notice?: string }) {
   return null;
 }
 
-const publicLinks: PublicNavLink[] = [
-  { href: "/", label: "Home" },
-  {
-    href: "/schedule",
-    label: "Inscription",
-    children: [
-      { href: "/schedule", label: "Regular Class" },
-      { href: "/events", label: "Special Events" },
-      { href: "/packages", label: "Special Packs" },
-    ],
-  },
-  {
-    href: "/about",
-    label: "Our Story",
-    children: [
-      { href: "/about", label: "About Us" },
-      { href: "/reviews", label: "Customer Review" },
-      { href: "/support", label: "Customer Support" },
-    ],
-  },
-  { href: "/careers", label: "Careers" },
-  { href: "/studio", label: "Studio" },
-];
-
-const bookNowClass =
-  "inline-flex items-center rounded-[4px] bg-lagoon px-3.5 py-2 text-sm font-medium leading-none text-white transition-colors hover:bg-ink";
-
-export function PublicHeader() {
+export async function PublicHeader() {
+  const { locale, t } = await getI18n();
+  const links = [
+    { href: "/", label: t.nav.home },
+    { href: "/about", label: t.nav.about },
+    { href: "/classes", label: t.nav.classes },
+    { href: "/price", label: t.nav.price },
+    { href: "/trainers", label: t.nav.trainers },
+    { href: "/locations", label: t.nav.locations },
+    { href: "/careers", label: t.nav.careers },
+  ];
   return (
-    <header className="sticky top-0 z-20">
-      <div className="h-1.5 w-full bg-lagoon" aria-hidden="true" />
-      <div className="border-b border-black/[0.06] bg-white/95 backdrop-blur-xl">
-        <div className="relative mx-auto flex h-[4.5rem] w-full max-w-6xl items-center justify-between px-4 md:h-20 md:px-6">
-          <Link href="/" className="shrink-0" aria-label="Hydrofit home">
-            <BrandMark hideNameOnMobile />
-          </Link>
-          <PublicNav
-            links={publicLinks}
-            className="absolute left-1/2 hidden -translate-x-1/2 items-center lg:flex"
-          />
-          <Link href="/schedule" className={bookNowClass}>
-            Book now
-          </Link>
-        </div>
-        <PublicNav
-          links={publicLinks}
-          className="flex items-center justify-center gap-0.5 border-t border-black/[0.06] px-2 py-1 lg:hidden"
-        />
-      </div>
-    </header>
+    <SiteHeader locale={locale} links={links} joinLabel={t.nav.join} languageLabel={t.nav.language} />
   );
 }
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const { t } = await getI18n();
   const year = new Date().getFullYear();
+  const links = [
+    { href: "/", label: t.nav.home },
+    { href: "/about", label: t.nav.about },
+    { href: "/classes", label: t.nav.classes },
+    { href: "/price", label: t.nav.price },
+    { href: "/trainers", label: t.nav.trainers },
+    { href: "/locations", label: t.nav.locations },
+    { href: "/careers", label: t.nav.careers },
+    { href: "/schedule", label: t.footer.schedule },
+  ];
+
   return (
-    <footer className="mt-16 border-t border-black/[0.06] bg-white">
-      <div className="mx-auto grid w-full max-w-6xl gap-10 px-6 py-12 md:grid-cols-[1.4fr_1fr] md:px-10">
-        <div>
-          <BrandMark size="sm" />
-          <p className="mt-5 text-base leading-6 text-ink">Ho Chi Minh City</p>
-          <p className="text-base leading-6 text-ink/60">12 Vo Truong Toan</p>
-        </div>
-        <div>
-          <p className="font-display text-lg text-ink">Menu</p>
-          <ul className="mt-4 space-y-2.5">
-            {publicLinks
-              .flatMap((link) => (link.children?.length ? link.children : [link]))
-              .map((link) => (
+    <>
+      <JoinBand kicker={t.footer.bandKicker} title={t.footer.bandTitle} body={t.footer.bandBody} cta={t.footer.bandCta} />
+      <footer className="bg-white text-black">
+        <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-14 md:grid-cols-3">
+          <div>
+            <BrandMark size="sm" />
+            <p className="mt-5 max-w-xs text-sm leading-6 text-black/60">{t.footer.tagline}</p>
+          </div>
+          <div>
+            <p className="font-display text-lg uppercase tracking-[0.14em]">{t.footer.menu}</p>
+            <ul className="mt-4 space-y-2">
+              {links.map((link) => (
                 <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-base leading-6 text-ink/60 transition-colors hover:text-pool"
-                  >
+                  <Link href={link.href} className="text-sm text-black/60 hover:text-black">
                     {link.label}
                   </Link>
                 </li>
               ))}
-            <li>
-              <Link
-                href="/schedule"
-                className="text-base leading-6 text-ink/60 transition-colors hover:text-pool"
-              >
-                Book now
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div className="border-t border-black/[0.06]">
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-6 py-6 sm:flex-row md:px-10">
-          <p className="font-display text-lg text-ink/55">© {year} Hydrofit. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <Link
-              href="/terms"
-              className="text-sm font-medium text-ink transition-colors hover:text-pool"
-            >
-              Terms of Service
-            </Link>
-            <Link
-              href="/privacy"
-              className="text-sm font-medium text-ink transition-colors hover:text-pool"
-            >
-              Privacy Policy
-            </Link>
+            </ul>
+          </div>
+          <div>
+            <p className="font-display text-lg uppercase tracking-[0.14em]">{t.footer.visit}</p>
+            <p className="mt-4 text-sm text-black/70">{t.footer.street}</p>
+            <p className="text-sm text-black/70">{t.footer.city}</p>
           </div>
         </div>
-      </div>
-    </footer>
+        <div className="border-t border-black/10">
+          <div className="mx-auto flex w-full max-w-7xl flex-col items-start justify-between gap-3 px-6 py-5 sm:flex-row sm:items-center">
+            <p className="text-sm text-black/50">
+              © {year} Hydrofit. {t.footer.rights}
+            </p>
+            <div className="flex gap-5 text-sm">
+              <Link href="/terms" className="text-black/70 hover:text-black">
+                {t.footer.terms}
+              </Link>
+              <Link href="/privacy" className="text-black/70 hover:text-black">
+                {t.footer.privacy}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </>
   );
 }

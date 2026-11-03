@@ -1,46 +1,53 @@
+import { PageBanner } from "@/components/marketing";
 import { PublicHeader, SiteFooter } from "@/components/ui";
+import { getI18n } from "@/lib/i18n";
 
-export const metadata = { title: "About Us" };
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: t.about.metaTitle };
+}
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const { t } = await getI18n();
+  const copy = t.about;
+
   return (
     <>
       <PublicHeader />
-      <main className="mx-auto w-full max-w-6xl px-4 pb-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-pool">Our Story</p>
-        <h1 className="mt-2 text-4xl text-lagoon">About Us</h1>
-        <p className="mt-2 max-w-xl text-sm text-ink/70">
-          Hydrofit is a small aquafitness studio in Ho Chi Minh City. Classes stay in the water,
-          and groups stay small.
-        </p>
-
-        <article className="mt-8 max-w-2xl rounded-3xl border border-line/80 bg-card p-5 md:p-8">
-          <h2 className="text-3xl tracking-wide text-lagoon">Why we started</h2>
-          <p className="mt-4 text-sm leading-7 text-ink/80">
-            Hydrofit began as a weekly pool class for people who wanted strength and cardio
-            without pounding the pavement. The first groups met at 12 Vo Truong Toan. The same
-            pool is still home.
-          </p>
-          <p className="mt-4 text-sm leading-7 text-ink/80">
-            A class lasts 45 minutes: warm-up, a main set, and a cool-down. Most groups have no
-            more than 10 people, so the instructor can see form and keep the pace comfortable for
-            mixed fitness levels.
-          </p>
-
-          <h2 className="mt-8 text-3xl tracking-wide text-lagoon">What a week looks like</h2>
-          <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-ink/80">
-            <li>Morning and evening Aqua Fit through the week.</li>
-            <li>A Saturday morning class for people who train on the weekend.</li>
-            <li>Special workshops that sit beside the regular timetable.</li>
-            <li>Class packs bought at the desk, one credit per class you attend.</li>
+      <main>
+        <PageBanner kicker={copy.kicker} title={copy.title} watermark={copy.watermark} />
+        <section className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-16 md:grid-cols-2 md:py-20">
+          <h2 className="font-display text-5xl uppercase leading-[0.92]">{copy.storyTitle}</h2>
+          <div className="space-y-4 text-base leading-7 text-black/75">
+            {copy.story.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+        </section>
+        <section className="bg-[#f3f3f3]">
+          <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-16 md:grid-cols-[0.8fr_1.2fr] md:py-20">
+            <h2 className="font-display text-5xl uppercase leading-[0.92]">{copy.gymTitle}</h2>
+            <ul className="divide-y divide-black/10 border-y border-black/10">
+              {copy.gym.map((item) => (
+                <li key={item} className="py-4 text-base leading-7">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+        <section className="mx-auto w-full max-w-7xl px-6 py-16 md:py-20">
+          <h2 className="max-w-3xl font-display text-5xl uppercase leading-[0.92]">{copy.missionTitle}</h2>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-black/75">{copy.mission}</p>
+          <ul className="mt-12 grid gap-8 md:grid-cols-2">
+            {copy.pillars.map((pillar) => (
+              <li key={pillar.title} className="border-t-2 border-black pt-4">
+                <h3 className="font-display text-3xl uppercase">{pillar.title}</h3>
+                <p className="mt-3 text-sm leading-6 text-black/70">{pillar.body}</p>
+              </li>
+            ))}
           </ul>
-
-          <h2 className="mt-8 text-3xl tracking-wide text-lagoon">Where to find us</h2>
-          <p className="mt-4 text-sm leading-7 text-ink/80">
-            12 Vo Truong Toan, Ho Chi Minh City. Ask at the studio desk if you are new and want to
-            see the pool before your first class.
-          </p>
-        </article>
+        </section>
       </main>
       <SiteFooter />
     </>

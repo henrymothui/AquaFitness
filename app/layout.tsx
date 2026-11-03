@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
-import { Barlow_Condensed, Outfit } from "next/font/google";
+import { Oswald, Outfit } from "next/font/google";
 import "./globals.css";
+import { getLocale } from "@/lib/i18n";
 
 const outfit = Outfit({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   variable: "--font-outfit",
 });
 
-const barlow = Barlow_Condensed({
-  subsets: ["latin"],
+const display = Oswald({
+  subsets: ["latin", "vietnamese"],
   weight: ["500", "600", "700"],
   variable: "--font-barlow",
 });
@@ -23,10 +24,11 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale();
   return (
-    <html lang="en" className={`${outfit.variable} ${barlow.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+    <html lang={locale} className={`${outfit.variable} ${display.variable} h-full antialiased`}>
+      <body className="min-h-full bg-white text-black">{children}</body>
     </html>
   );
 }

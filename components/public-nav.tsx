@@ -94,9 +94,7 @@ export function PublicNav({
               </svg>
             </summary>
             <div className="pointer-events-none absolute left-1/2 top-full z-30 w-max -translate-x-1/2 pt-2 group-open:pointer-events-auto group-hover:pointer-events-auto">
-              <div
-                className="invisible min-w-[11.5rem] origin-top -translate-y-1 overflow-hidden rounded-[6px] border border-black/[0.06] bg-white py-1 opacity-0 shadow-[0_18px_40px_-24px_rgba(16,36,51,0.55)] transition duration-200 ease-out group-open:visible group-open:translate-y-0 group-open:opacity-100 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100"
-              >
+              <div className="invisible min-w-[11.5rem] overflow-hidden rounded-[6px] border border-black/[0.06] bg-white py-1 opacity-0 shadow-[0_18px_40px_-24px_rgba(16,36,51,0.55)] group-open:visible group-open:opacity-100 group-hover:visible group-hover:opacity-100">
                 {link.children.map((child) => {
                   const childActive = isActive(pathname, child.href);
                   return (
