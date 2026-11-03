@@ -1,4 +1,4 @@
-import { PublicHeader, SiteFooter } from "@/components/ui";
+import { PublicHeader, SiteFooter } from "@/components/site-chrome";
 
 export const metadata = { title: "Terms of Service" };
 

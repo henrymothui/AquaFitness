@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { PublicHeader, SiteFooter } from "@/components/ui";
+import { PublicHeader, SiteFooter } from "@/components/site-chrome";
 import { formatMoney, formatTime } from "@/lib/format";
 import { getI18n } from "@/lib/i18n";
 import { bookingCounts, getSettings, listPackages, listUpcoming } from "@/lib/queries";

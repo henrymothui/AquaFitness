@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { PublicHeader, SiteFooter, quietButtonClass } from "@/components/ui";
+import { PublicHeader, SiteFooter } from "@/components/site-chrome";
+import { quietButtonClass } from "@/components/ui";
 
 export const metadata = { title: "Customer Support" };
 

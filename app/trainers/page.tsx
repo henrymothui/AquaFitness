@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { PageBanner } from "@/components/marketing";
-import { PublicHeader, SiteFooter } from "@/components/ui";
+import { PublicHeader, SiteFooter } from "@/components/site-chrome";
 import { getI18n } from "@/lib/i18n";
 
 export async function generateMetadata() {

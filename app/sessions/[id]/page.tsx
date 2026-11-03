@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ClassImage } from "@/components/class-image";
-import { PublicHeader, SiteFooter } from "@/components/ui";
+import { PublicHeader, SiteFooter } from "@/components/site-chrome";
 import { formatWhen, spotsLabel } from "@/lib/format";
 import { bookingCounts, getSession, getSettings } from "@/lib/queries";
 

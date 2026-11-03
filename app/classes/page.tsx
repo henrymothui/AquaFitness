@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PageBanner } from "@/components/marketing";
-import { PublicHeader, SiteFooter } from "@/components/ui";
+import { PublicHeader, SiteFooter } from "@/components/site-chrome";
 import { getI18n } from "@/lib/i18n";
 
 const images = ["/brand/pool-class.jpg", "/brand/banner.jpg", "/brand/hcmc-skyline.jpg", "/brand/pool-class.jpg"];

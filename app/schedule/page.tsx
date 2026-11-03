@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PublicHeader, SiteFooter } from "@/components/ui";
+import { PublicHeader, SiteFooter } from "@/components/site-chrome";
 import { WeekBoard } from "@/components/session-list";
 import { addDays, mondayOf, todayISO } from "@/lib/dates";
 import { bookingCounts, getSettings, listSessionsBetween } from "@/lib/queries";

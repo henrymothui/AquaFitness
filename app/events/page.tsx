@@ -1,4 +1,4 @@
-import { PublicHeader, SiteFooter } from "@/components/ui";
+import { PublicHeader, SiteFooter } from "@/components/site-chrome";
 import { SessionCards } from "@/components/session-list";
 import { bookingCounts, getSettings, listEvents } from "@/lib/queries";
 

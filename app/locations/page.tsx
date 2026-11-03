@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { PageBanner } from "@/components/marketing";
-import { PublicHeader, SiteFooter } from "@/components/ui";
+import { PublicHeader, SiteFooter } from "@/components/site-chrome";
 import { getI18n } from "@/lib/i18n";
 
 const mapSrc =
