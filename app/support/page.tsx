@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { PublicHeader, SiteFooter } from "@/components/site-chrome";
-import { quietButtonClass } from "@/components/ui";
 
 export const metadata = { title: "Customer Support" };
 
@@ -8,7 +6,7 @@ const questions = [
   {
     question: "How do I book a class?",
     answer:
-      "Open the timetable and pick a session that still has room. A place is held when the studio desk records the booking.",
+      "Ask the studio desk to hold a place. A booking is recorded at the desk.",
   },
   {
     question: "Can I use a class pack?",
@@ -43,9 +41,6 @@ export default function SupportPage() {
             Sample hours: weekdays 6:30–9:00 and 17:30–20:30, Saturday 7:30–10:30. The desk is at
             the pool during those windows.
           </p>
-          <Link href="/schedule" className={`${quietButtonClass} mt-6`}>
-            See the timetable
-          </Link>
         </article>
 
         <section className="mt-6 max-w-2xl">

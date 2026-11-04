@@ -1,5 +1,5 @@
 import { CareerForm } from "@/components/career-form";
-import { PageBanner } from "@/components/marketing";
+import { ScrollStory } from "@/components/scroll-story";
 import { PublicHeader, SiteFooter } from "@/components/site-chrome";
 import { getI18n } from "@/lib/i18n";
 
@@ -16,19 +16,24 @@ export default async function CareersPage() {
     <>
       <PublicHeader />
       <main>
-        <PageBanner kicker={copy.kicker} title={copy.title} watermark={copy.watermark} />
+        <ScrollStory
+          chapters={[
+            {
+              image: "/brand/about-class.jpg",
+              imageAlt: copy.title,
+              position: "object-[center_55%]",
+              line: copy.storyLine,
+              word: copy.storyWord,
+              eyebrow: copy.kicker,
+              paragraphs: [copy.intro],
+              listLabel: copy.rolesTitle,
+              list: copy.roles,
+            },
+          ]}
+        />
         <section className="mx-auto grid w-full max-w-7xl gap-12 px-6 py-12 md:grid-cols-[0.9fr_1.1fr] md:py-16">
           <div>
-            <p className="text-base leading-7 text-black/75">{copy.intro}</p>
-            <h2 className="mt-10 font-display text-3xl uppercase">{copy.rolesTitle}</h2>
-            <ul className="mt-4 divide-y divide-black/10 border-y border-black/10">
-              {copy.roles.map((role) => (
-                <li key={role} className="py-3 font-display text-xl uppercase">
-                  {role}
-                </li>
-              ))}
-            </ul>
-            <article className="mt-10">
+            <article>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e10600]">{copy.roleMeta}</p>
               <h2 className="mt-2 font-display text-4xl uppercase">{copy.roleTitle}</h2>
               <p className="mt-4 text-sm leading-6 text-black/75">{copy.roleBody}</p>

@@ -90,7 +90,7 @@ export function HeroCarousel() {
             </h1>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/schedule"
+                href="/book"
                 className="rounded-full bg-white px-5 py-2.5 text-sm font-medium text-lagoon shadow-sm transition hover:bg-foam"
               >
                 See the class
@@ -118,7 +118,7 @@ export function HeroCarousel() {
           }`}
         >
           <Image
-            src="/brand/hcmc-skyline.jpg"
+            src="/brand/city.jpg"
             alt=""
             fill
             sizes="(min-width: 72rem) 72rem, 100vw"

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ClassImage } from "@/components/class-image";
-import { dayKey, formatDay, formatTime, spotsLabel } from "@/lib/format";
+import { formatTime, spotsLabel } from "@/lib/format";
 import type { SessionView } from "@/lib/queries";
 
 export function SessionCards({
@@ -49,37 +49,5 @@ export function SessionCards({
         );
       })}
     </ul>
-  );
-}
-
-export function WeekBoard({
-  days,
-  sessions,
-  timeZone,
-  counts,
-}: {
-  days: string[];
-  sessions: SessionView[];
-  timeZone: string;
-  counts: Map<string, number>;
-}) {
-  return (
-    <div className="grid gap-6">
-      {days.map((day) => {
-        const items = sessions.filter((session) => dayKey(session.startsAt, timeZone) === day);
-        return (
-          <section key={day}>
-            <h2 className="text-xl text-lagoon">{formatDay(day)}</h2>
-            <div className="mt-3">
-              {items.length === 0 ? (
-                <p className="text-sm text-ink/50">No classes</p>
-              ) : (
-                <SessionCards sessions={items} timeZone={timeZone} counts={counts} />
-              )}
-            </div>
-          </section>
-        );
-      })}
-    </div>
   );
 }

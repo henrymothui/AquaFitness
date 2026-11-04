@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     default: "Hydrofit",
     template: "%s · Hydrofit",
   },
-  description: "Weekly pool classes, class packs, and the studio desk for Hydrofit Aquafitness.",
+  description: "Pool classes in Ho Chi Minh City. Small groups. No contract.",
 };
 
 export const dynamic = "force-dynamic";

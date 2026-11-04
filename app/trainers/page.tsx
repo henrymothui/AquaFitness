@@ -1,7 +1,11 @@
-import Link from "next/link";
-import { PageBanner } from "@/components/marketing";
+import { ScrollStory, type StoryChapter } from "@/components/scroll-story";
 import { PublicHeader, SiteFooter } from "@/components/site-chrome";
 import { getI18n } from "@/lib/i18n";
+
+const frames = [
+  { image: "/brand/location-class.jpg", position: "object-[center_32%]" },
+  { image: "/brand/class-strength.jpg", position: "object-[center_68%]" },
+];
 
 export async function generateMetadata() {
   const { t } = await getI18n();
@@ -12,40 +16,28 @@ export default async function TrainersPage() {
   const { t } = await getI18n();
   const copy = t.trainers;
 
+  const chapters: StoryChapter[] = copy.people.map((person, index) => {
+    const [first, ...rest] = person.name.split(" ");
+    const frame = frames[index] ?? frames[0];
+    return {
+      image: frame.image,
+      imageAlt: "",
+      position: frame.position,
+      line: rest.join(" "),
+      word: first,
+      eyebrow: person.role,
+      paragraphs: index === 0 ? [copy.intro, person.body] : [person.body],
+      listLabel: copy.focus,
+      list: person.focus,
+      cta: index === copy.people.length - 1 ? { href: "/locations", label: copy.book } : undefined,
+    };
+  });
+
   return (
     <>
       <PublicHeader />
       <main>
-        <PageBanner kicker={copy.kicker} title={copy.title} watermark={copy.watermark} />
-        <section className="mx-auto w-full max-w-7xl px-6 py-12 md:py-16">
-          <p className="max-w-2xl text-base leading-7 text-black/75">{copy.intro}</p>
-          <ul className="mt-12 grid gap-8 md:grid-cols-2">
-            {copy.people.map((person) => (
-              <li key={person.name} className="border border-black/10">
-                <div className="flex h-56 items-end bg-[#111] p-5 text-white">
-                  <p className="font-display text-6xl uppercase leading-none">{person.name.slice(0, 1)}</p>
-                </div>
-                <div className="p-5">
-                  <h2 className="font-display text-3xl uppercase leading-none">{person.name}</h2>
-                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#e10600]">{person.role}</p>
-                  <p className="mt-4 text-sm leading-6 text-black/75">{person.body}</p>
-                  <p className="mt-5 text-xs font-semibold uppercase tracking-[0.18em] text-black/45">{copy.focus}</p>
-                  <ul className="mt-2 space-y-1 text-sm">
-                    {person.focus.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <Link
-            href="/locations"
-            className="mt-10 inline-flex rounded-full bg-[#e10600] px-6 py-3 font-display text-sm uppercase tracking-[0.14em] text-white hover:bg-[#c10500]"
-          >
-            {copy.book}
-          </Link>
-        </section>
+        <ScrollStory chapters={chapters} />
       </main>
       <SiteFooter />
     </>

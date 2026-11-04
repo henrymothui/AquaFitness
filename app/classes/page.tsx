@@ -1,50 +1,70 @@
-import Image from "next/image";
-import Link from "next/link";
-import { PageBanner } from "@/components/marketing";
+import { PricePair, type ClassPrices } from "@/components/class-catalog";
+import { ScrollStory, type StoryChapter } from "@/components/scroll-story";
 import { PublicHeader, SiteFooter } from "@/components/site-chrome";
+import { formatMoney } from "@/lib/format";
 import { getI18n } from "@/lib/i18n";
+import { listPackages } from "@/lib/queries";
 
-const images = ["/brand/pool-class.jpg", "/brand/banner.jpg", "/brand/hcmc-skyline.jpg", "/brand/pool-class.jpg"];
+const frames = [
+  { image: "/brand/class-fit.jpg", position: "object-[center_58%]" },
+  { image: "/brand/class-strength.jpg", position: "object-[center_70%]" },
+  { image: "/brand/class-restore.jpg", position: "object-center" },
+  { image: "/brand/class-saturday.jpg", position: "object-[center_42%]" },
+];
 
 export async function generateMetadata() {
   const { t } = await getI18n();
   return { title: t.classes.metaTitle };
 }
 
+async function loadPrices(): Promise<ClassPrices> {
+  try {
+    const packages = await listPackages(false);
+    const ten = packages.find((pack) => pack.credit_count === 10);
+    const one = packages.find((pack) => pack.credit_count === 1);
+    const singleCents = one?.price_cents ?? (ten ? Math.round(ten.price_cents / ten.credit_count) : null);
+    return {
+      single: singleCents == null ? null : formatMoney(singleCents),
+      pack: ten ? formatMoney(ten.price_cents) : null,
+    };
+  } catch {
+    return { single: null, pack: null };
+  }
+}
+
 export default async function ClassesPage() {
   const { t } = await getI18n();
   const copy = t.classes;
+  const prices = await loadPrices();
+
+  const chapters: StoryChapter[] = copy.items.map((item, index) => {
+    const bits = item.name.split(" ");
+    const word = bits.pop() ?? item.name;
+    const line = bits.join(" ");
+    const frame = frames[index] ?? frames[0];
+    return {
+      image: frame.image,
+      imageAlt: item.name,
+      position: frame.position,
+      line,
+      word,
+      eyebrow: `${item.minutes} · ${item.level}`,
+      paragraphs: index === 0 ? [copy.intro, item.body, item.summary] : [item.body, item.summary],
+      listLabel: copy.workout,
+      list: item.exercises,
+      aside:
+        prices.single || prices.pack ? (
+          <PricePair prices={prices} singleLabel={copy.singleLabel} packLabel={copy.packLabel} />
+        ) : undefined,
+      cta: { href: "/book", label: copy.book },
+    };
+  });
 
   return (
     <>
       <PublicHeader />
       <main>
-        <PageBanner kicker={copy.kicker} title={copy.title} watermark={copy.watermark} />
-        <section className="mx-auto w-full max-w-7xl px-6 py-12 md:py-16">
-          <p className="max-w-2xl text-base leading-7 text-black/75">{copy.intro}</p>
-          <ul className="mt-12 grid gap-10">
-            {copy.items.map((item, index) => (
-              <li key={item.name} className="grid items-center gap-6 border-t border-black/10 pt-8 md:grid-cols-[16rem_1fr_auto]">
-                <div className="relative h-44 overflow-hidden bg-[#ddd] md:h-36">
-                  <Image src={images[index]} alt="" fill sizes="16rem" className="object-cover" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e10600]">
-                    {item.minutes} · {item.level}
-                  </p>
-                  <h2 className="mt-2 font-display text-4xl uppercase">{item.name}</h2>
-                  <p className="mt-3 max-w-xl text-sm leading-6 text-black/70">{item.body}</p>
-                </div>
-                <Link
-                  href="/schedule"
-                  className="justify-self-start rounded-full border border-black px-5 py-2 font-display text-sm uppercase tracking-[0.12em] hover:bg-black hover:text-white md:justify-self-end"
-                >
-                  {copy.book}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <ScrollStory chapters={chapters} />
       </main>
       <SiteFooter />
     </>

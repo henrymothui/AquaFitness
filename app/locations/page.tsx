@@ -1,5 +1,4 @@
-import Image from "next/image";
-import { PageBanner } from "@/components/marketing";
+import { ScrollStory } from "@/components/scroll-story";
 import { PublicHeader, SiteFooter } from "@/components/site-chrome";
 import { getI18n } from "@/lib/i18n";
 
@@ -21,52 +20,42 @@ export default async function LocationsPage() {
     <>
       <PublicHeader />
       <main>
-        <PageBanner kicker={copy.kicker} title={copy.title} watermark={copy.watermark} />
-        <section className="mx-auto w-full max-w-7xl px-6 py-12 md:py-16">
-          <p className="max-w-2xl text-base leading-7 text-black/75">{copy.intro}</p>
-          <article className="mt-10 grid overflow-hidden border border-black/10 md:grid-cols-2">
-            <div className="relative min-h-72">
-              <Image src="/brand/pool-class.jpg" alt="" fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+        <ScrollStory
+          chapters={[
+            {
+              image: "/brand/studio.jpg",
+              imageAlt: copy.name,
+              position: "object-[center_62%]",
+              line: copy.visitLine,
+              word: copy.visitWord,
+              eyebrow: copy.kicker,
+              paragraphs: [copy.intro, `${copy.name}. ${address}. ${copy.about}`, `${copy.hoursTitle}: ${copy.hours}`],
+              cta: { href: directions, label: copy.directions, external: true },
+              aside: (
+                <p className="text-sm leading-6 text-black/70">
+                  <a href={copy.phoneHref} className="underline">
+                    {copy.phone}
+                  </a>
+                  <span className="text-black/25"> · </span>
+                  <a href={`mailto:${copy.email}`} className="underline">
+                    {copy.email}
+                  </a>
+                </p>
+              ),
+            },
+          ]}
+        />
+        <section className="bg-white">
+          <figure className="mx-auto w-full max-w-7xl px-6 pb-16 md:pb-24">
+            <div className="min-h-80 overflow-hidden border border-black/10 bg-[#eee]">
+              <iframe title={address} src={mapSrc} className="h-80 w-full border-0 md:h-[28rem]" referrerPolicy="no-referrer-when-downgrade" />
             </div>
-            <div className="p-6 md:p-8">
-              <h2 className="font-display text-4xl uppercase leading-none">{copy.name}</h2>
-              <p className="mt-4 text-base">{copy.street}</p>
-              <p className="text-black/60">{copy.city}</p>
-              <p className="mt-4 text-sm leading-6 text-black/70">{copy.about}</p>
-              <h3 className="mt-6 font-display text-2xl uppercase">{copy.hoursTitle}</h3>
-              <p className="mt-2 text-sm leading-6 text-black/70">{copy.hours}</p>
-              <a
-                href={directions}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-6 inline-flex rounded-full bg-[#e10600] px-5 py-2.5 font-display text-sm uppercase tracking-[0.12em] text-white hover:bg-[#c10500]"
-              >
-                {copy.directions}
+            <figcaption className="mt-2 text-right text-xs text-black/45">
+              <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="underline">
+                {copy.mapNote}
               </a>
-            </div>
-          </article>
-          <div className="mt-8 grid gap-8 md:grid-cols-[1fr_1.2fr]">
-            <div>
-              <h3 className="font-display text-3xl uppercase">{copy.amenitiesTitle}</h3>
-              <ul className="mt-4 divide-y divide-black/10 border-y border-black/10">
-                {copy.amenities.map((item) => (
-                  <li key={item} className="py-3 text-sm">
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <figure>
-              <div className="h-72 overflow-hidden border border-black/10 bg-[#eee]">
-                <iframe title={address} src={mapSrc} className="h-full w-full border-0" referrerPolicy="no-referrer-when-downgrade" />
-              </div>
-              <figcaption className="mt-2 text-right text-xs text-black/45">
-                <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer" className="underline">
-                  {copy.mapNote}
-                </a>
-              </figcaption>
-            </figure>
-          </div>
+            </figcaption>
+          </figure>
         </section>
       </main>
       <SiteFooter />

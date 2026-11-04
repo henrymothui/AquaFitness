@@ -30,12 +30,10 @@ export function PageBanner({
 export function JoinBand({
   kicker,
   title,
-  body,
   cta,
 }: {
   kicker: string;
   title: string;
-  body: string;
   cta: string;
 }) {
   return (
@@ -44,10 +42,9 @@ export function JoinBand({
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.32em] text-white/50">{kicker}</p>
           <h2 className="mt-3 font-display text-5xl font-semibold uppercase leading-[0.9] md:text-6xl">{title}</h2>
-          <p className="mt-4 max-w-xl text-base text-white/70">{body}</p>
         </div>
         <Link
-          href="/schedule"
+          href="/book"
           className="rounded-full bg-[#e10600] px-6 py-3 font-display text-sm font-medium uppercase tracking-[0.14em] text-white hover:bg-[#c10500]"
         >
           {cta}

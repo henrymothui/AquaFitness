@@ -38,8 +38,8 @@ export default async function SessionPage({ params }: { params: Promise<{ id: st
           <p className="mt-6 rounded-2xl bg-card px-4 py-3 text-sm text-ink/70">
             Spots are booked at the studio desk. A pack stops when its credits are used up.
           </p>
-          <Link href="/schedule" className="mt-4 inline-block text-sm font-medium text-pool">
-            Back to the class
+          <Link href="/classes" className="mt-4 inline-block text-sm font-medium text-pool">
+            Back to classes
           </Link>
         </div>
       </main>

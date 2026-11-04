@@ -98,7 +98,7 @@ export function SiteHeader({
             </button>
           </div>
           <Link
-            href="/schedule"
+            href="/book"
             className="hidden rounded-full bg-[#e10600] px-4 py-2 font-display text-sm font-medium uppercase tracking-[0.12em] text-white hover:bg-[#c10500] sm:inline-flex"
           >
             {joinLabel}
@@ -120,8 +120,8 @@ export function SiteHeader({
       </div>
 
       {open ? (
-        <div className="border-t border-black/10 bg-white px-4 py-4 xl:hidden">
-          <nav className="flex flex-col" aria-label="Primary">
+        <div className="border-t border-black/10 bg-white px-4 py-2 xl:hidden">
+          <nav className="flex flex-wrap gap-x-4 gap-y-0.5" aria-label="Primary">
             {links.map((link) => {
               const on = active(pathname, link.href);
               return (
@@ -130,7 +130,7 @@ export function SiteHeader({
                   href={link.href}
                   onClick={() => setOpen(false)}
                   aria-current={on ? "page" : undefined}
-                  className={`border-b border-black/5 py-3 font-display text-lg uppercase tracking-[0.14em] ${
+                  className={`py-1.5 font-display text-[13px] font-medium uppercase leading-none tracking-[0.08em] ${
                     on ? "text-[#e10600]" : "text-black"
                   }`}
                 >
@@ -139,8 +139,8 @@ export function SiteHeader({
               );
             })}
           </nav>
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex items-center gap-3 text-sm font-semibold tracking-[0.16em]">
+          <div className="flex items-center justify-between py-2">
+            <div className="flex items-center gap-3 text-xs font-semibold tracking-[0.16em]">
               <button type="button" onClick={() => choose("en")} className={locale === "en" ? "text-black" : "text-black/40"}>
                 EN
               </button>
@@ -149,9 +149,9 @@ export function SiteHeader({
               </button>
             </div>
             <Link
-              href="/schedule"
+              href="/book"
               onClick={() => setOpen(false)}
-              className="rounded-full bg-[#e10600] px-4 py-2 font-display text-sm uppercase tracking-[0.12em] text-white"
+              className="rounded-full bg-[#e10600] px-3 py-1.5 font-display text-xs uppercase tracking-[0.12em] text-white"
             >
               {joinLabel}
             </Link>
