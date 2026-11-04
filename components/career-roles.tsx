@@ -25,13 +25,17 @@ export function CareerRoles({ copy }: { copy: Dictionary["careers"] }) {
             <button
               type="button"
               onClick={() => setOpen(index)}
-              className="flex w-full items-center justify-between gap-6 py-7 text-left"
+              className="group flex w-full items-center justify-between gap-6 py-5 text-left"
             >
               <span>
                 <span className="block text-xs font-semibold uppercase tracking-[0.22em] text-[#e10600]">{entry.meta}</span>
-                <span className="mt-2 block font-display text-4xl uppercase">{entry.title}</span>
+                <span className="relative mt-1.5 block w-fit font-display text-xl font-medium! uppercase leading-none tracking-[0.06em]! transition-colors duration-200 group-hover:text-[#e10600] after:absolute after:inset-x-0 after:-bottom-1.5 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 group-hover:after:scale-x-100 md:text-2xl">
+                  {entry.title}
+                </span>
               </span>
-              <span className="shrink-0 font-display text-sm uppercase tracking-[0.14em] text-black/55">{copy.details}</span>
+              <span className="shrink-0 font-display text-sm uppercase tracking-[0.14em] text-black/55 transition-colors duration-200 group-hover:text-[#e10600]">
+                {copy.details}
+              </span>
             </button>
           </li>
         ))}
@@ -60,7 +64,7 @@ export function CareerRoles({ copy }: { copy: Dictionary["careers"] }) {
             </div>
             <div className="px-6 pt-1 pb-6">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#e10600]">{role.meta}</p>
-              <h2 id={titleId} className="mt-2 font-display text-4xl uppercase">
+              <h2 id={titleId} className="mt-2 font-display text-2xl font-medium! uppercase leading-none tracking-[0.04em]! md:text-3xl">
                 {role.title}
               </h2>
               <p className="mt-3 text-sm leading-6 text-black/75">{role.body}</p>

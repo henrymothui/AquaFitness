@@ -107,57 +107,83 @@ export function SiteHeader({
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center xl:hidden"
             aria-expanded={open}
+            aria-controls="mobile-menu"
             aria-label="Menu"
             onClick={() => setOpen((value) => !value)}
           >
-            <span className="flex w-5 flex-col gap-1.5">
-              <span className="h-0.5 w-full bg-black" />
-              <span className="h-0.5 w-full bg-black" />
-              <span className="h-0.5 w-full bg-black" />
+            <span className="flex h-[18px] w-5 flex-col justify-between">
+              <span
+                className={`block h-0.5 w-full origin-center bg-black transition-transform duration-300 ease-out motion-reduce:transition-none ${
+                  open ? "translate-y-2 rotate-45" : ""
+                }`}
+              />
+              <span
+                className={`block h-0.5 w-full bg-black transition-opacity duration-200 motion-reduce:transition-none ${
+                  open ? "opacity-0" : "opacity-100"
+                }`}
+              />
+              <span
+                className={`block h-0.5 w-full origin-center bg-black transition-transform duration-300 ease-out motion-reduce:transition-none ${
+                  open ? "-translate-y-2 -rotate-45" : ""
+                }`}
+              />
             </span>
           </button>
         </div>
       </div>
 
-      {open ? (
-        <div className="border-t border-black/10 bg-white px-4 py-2 xl:hidden">
-          <nav className="flex flex-wrap gap-x-4 gap-y-0.5" aria-label="Primary">
-            {links.map((link) => {
-              const on = active(pathname, link.href);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  aria-current={on ? "page" : undefined}
-                  className={`py-1.5 font-display text-[13px] font-medium uppercase leading-none tracking-[0.08em] ${
-                    on ? "text-[#e10600]" : "text-black"
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
-          <div className="flex items-center justify-between py-2">
-            <div className="flex items-center gap-3 text-xs font-semibold tracking-[0.16em]">
-              <button type="button" onClick={() => choose("en")} className={locale === "en" ? "text-black" : "text-black/40"}>
-                EN
-              </button>
-              <button type="button" onClick={() => choose("vi")} className={locale === "vi" ? "text-black" : "text-black/40"}>
-                VI
-              </button>
-            </div>
-            <Link
-              href="/book"
-              onClick={() => setOpen(false)}
-              className="rounded-full bg-[#e10600] px-3 py-1.5 font-display text-xs uppercase tracking-[0.12em] text-white"
+      <div
+        id="mobile-menu"
+        className={`grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none xl:hidden ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className={open ? "overflow-hidden" : "pointer-events-none overflow-hidden"} inert={!open}>
+          <div className="border-t border-black/10 bg-white px-4">
+            <nav className="flex flex-col py-2" aria-label="Primary">
+              {links.map((link, index) => {
+                const on = active(pathname, link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    aria-current={on ? "page" : undefined}
+                    style={{ transitionDelay: open ? `${70 + index * 45}ms` : "0ms" }}
+                    className={`block py-3 font-display text-[15px] font-medium uppercase tracking-[0.14em] transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none ${
+                      open ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
+                    } ${on ? "text-[#e10600]" : "text-black"}`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+            <div
+              className={`flex items-center justify-between border-t border-black/10 py-3 transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none ${
+                open ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
+              }`}
+              style={{ transitionDelay: open ? `${70 + links.length * 45}ms` : "0ms" }}
             >
-              {joinLabel}
-            </Link>
+              <div className="flex items-center gap-3 text-xs font-semibold tracking-[0.16em]">
+                <button type="button" onClick={() => choose("en")} className={locale === "en" ? "text-black" : "text-black/40"}>
+                  EN
+                </button>
+                <button type="button" onClick={() => choose("vi")} className={locale === "vi" ? "text-black" : "text-black/40"}>
+                  VI
+                </button>
+              </div>
+              <Link
+                href="/book"
+                onClick={() => setOpen(false)}
+                className="rounded-full bg-[#e10600] px-3 py-1.5 font-display text-xs uppercase tracking-[0.12em] text-white"
+              >
+                {joinLabel}
+              </Link>
+            </div>
           </div>
         </div>
-      ) : null}
+      </div>
     </header>
   );
 }
