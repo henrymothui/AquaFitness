@@ -334,7 +334,7 @@ export function ScrollStory({
                 : `relative bg-white px-5 text-black ${heavyTitle ? "py-8 md:py-12" : "py-16 md:py-24"}${snap ? " snap-start" : ""}`
             }
           >
-            {onPhoto ? (
+            {chapter.image ? (
               <>
                 <div data-parallax className="absolute inset-x-0 -top-24 -bottom-24">
                   <Image
