@@ -11,7 +11,6 @@ export async function PublicHeader() {
     { href: "/about", label: t.nav.about },
     { href: "/classes", label: t.nav.classes },
     { href: "/trainers", label: t.nav.trainers },
-    { href: "/locations", label: t.nav.locations },
     { href: "/careers", label: t.nav.careers },
   ];
   return (

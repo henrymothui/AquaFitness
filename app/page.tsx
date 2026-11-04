@@ -7,61 +7,53 @@ export async function generateMetadata() {
   return { title: t.home.metaTitle, description: t.home.metaDescription };
 }
 
+const reasonFrames = [
+  { image: "/brand/class-saturday.jpg", imagePosition: "object-[center_55%]" },
+  { image: "/brand/class-fit.jpg", imagePosition: "object-center" },
+  { image: "/brand/class-restore.jpg", imagePosition: "object-center" },
+  { image: "/brand/class-strength.jpg", imagePosition: "object-[center_62%]" },
+  { image: "/brand/location-spa.jpg", imagePosition: "object-center" },
+];
+
 export default async function HomePage() {
   const { t } = await getI18n();
   const copy = t.home;
+  const water = t.about;
 
   return (
     <>
       <PublicHeader />
       <main>
         <ScrollStory
+          snap
           chapters={[
             {
               image: "/brand/banner.jpg",
               imageAlt: "",
               position: "object-[center_42%]",
-              line: copy.heroA,
-              word: copy.heroB,
+              line: "",
+              word: copy.heroWord,
               closer: copy.heroSub,
+              featured: true,
               cta: { href: "/book", label: copy.trial },
             },
             {
-              image: "/brand/about-class.jpg",
-              imageAlt: copy.whyTitle,
-              position: "object-[center_58%]",
-              line: copy.whyLine,
-              word: copy.whyWord,
+              line: water.waterLine,
+              word: water.waterWord,
               eyebrow: copy.whyKicker,
-              points: copy.why,
+              paragraphs: water.aqua,
+              points: copy.why.map((point, index) => ({
+                ...point,
+                image: reasonFrames[index]?.image,
+                imageAlt: point.title,
+                imagePosition: reasonFrames[index]?.imagePosition,
+              })),
             },
             {
-              image: "/brand/location-class.jpg",
-              imageAlt: copy.offerTitle,
-              position: "object-[center_40%]",
-              line: copy.paceLine,
-              word: copy.paceWord,
-              eyebrow: copy.offerKicker,
-              points: copy.offers,
-              cta: { href: "/classes", label: copy.offerCta },
-            },
-            {
-              image: "/brand/about-city.jpg",
-              imageAlt: copy.feedbackTitle,
-              position: "object-[center_46%]",
               line: copy.voiceLine,
               word: copy.voiceWord,
               eyebrow: copy.feedbackKicker,
               quotes: copy.feedback,
-            },
-            {
-              image: "/brand/studio.jpg",
-              imageAlt: copy.locTitle,
-              position: "object-[center_62%]",
-              line: copy.studioLine,
-              word: copy.studioWord,
-              closer: copy.locBody,
-              cta: { href: "/locations", label: copy.locCta },
             },
           ]}
         />

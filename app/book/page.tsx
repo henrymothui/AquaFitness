@@ -20,7 +20,7 @@ export default async function BookPage() {
         <section className="mx-auto w-full max-w-7xl px-6 py-16 md:py-20">
           <p className="max-w-xl text-base leading-7 text-black/75">{copy.body}</p>
           <Link
-            href="/locations"
+            href="/about"
             className="mt-8 inline-flex rounded-full bg-[#e10600] px-6 py-3 font-display text-sm uppercase tracking-[0.14em] text-white hover:bg-[#c10500]"
           >
             {copy.cta}
