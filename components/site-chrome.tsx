@@ -39,7 +39,33 @@ export async function SiteFooter() {
             <p>
               © {year} Hydrofit. {t.footer.rights}
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <div className="flex items-center gap-1" aria-label="Social">
+                <a
+                  href="https://www.instagram.com/hydrofitvn"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="inline-flex h-8 w-8 items-center justify-center text-black/55 transition-colors hover:text-black"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.7">
+                    <rect x="3.25" y="3.25" width="17.5" height="17.5" rx="5" />
+                    <circle cx="12" cy="12" r="4" />
+                    <circle cx="17.4" cy="6.6" r="0.9" fill="currentColor" stroke="none" />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.facebook.com/share/1CWrQ54nQY/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="inline-flex h-8 w-8 items-center justify-center text-black/55 transition-colors hover:text-black"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4" fill="currentColor">
+                    <path d="M14.2 8.4V6.9c0-.6.2-1 1-1H17V3.5h-2.4C12.2 3.5 11 4.8 11 6.8v1.6H8.8v2.6H11V21h3.1v-10h2.4l.4-2.6h-2.7z" />
+                  </svg>
+                </a>
+              </div>
               <Link href="/terms" className="hover:text-black">
                 {t.footer.terms}
               </Link>

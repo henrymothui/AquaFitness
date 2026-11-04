@@ -22,6 +22,7 @@ export default async function AboutPage() {
       <PublicHeader />
       <main>
         <ScrollStory
+          snap
           chapters={[
             {
               image: "/brand/saigon-skyline-night.jpg",
@@ -62,7 +63,7 @@ export default async function AboutPage() {
             },
           ]}
         />
-        <section className="bg-white">
+        <section className="snap-start bg-white">
           <figure className="mx-auto w-full max-w-7xl px-6 pb-16 md:pb-24">
             <div className="min-h-80 overflow-hidden border border-black/10 bg-[#eee]">
               <iframe title={address} src={mapSrc} className="h-80 w-full border-0 md:h-[28rem]" referrerPolicy="no-referrer-when-downgrade" />

@@ -28,8 +28,10 @@ export default async function TrainersPage() {
     <>
       <PublicHeader />
       <main>
-        <PageBanner kicker={copy.kicker} title={copy.title} watermark={copy.watermark} />
-        <ScrollStory chapters={chapters} glide heavyTitle />
+        <div className="snap-start">
+          <PageBanner kicker={copy.kicker} title={copy.title} watermark={copy.watermark} />
+        </div>
+        <ScrollStory chapters={chapters} snap heavyTitle />
       </main>
       <SiteFooter />
     </>

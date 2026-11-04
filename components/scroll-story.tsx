@@ -19,6 +19,7 @@ export type StoryChapter = {
   list?: readonly string[];
   quotes?: readonly { name: string; detail: string; quote: string }[];
   aside?: ReactNode;
+  panel?: ReactNode;
   closer?: string;
   featured?: boolean;
   cta?: { href: string; label: string; external?: boolean };
@@ -317,7 +318,8 @@ export function ScrollStory({
             chapter.list?.length ||
             chapter.points?.length ||
             chapter.quotes?.length ||
-            chapter.aside,
+            chapter.aside ||
+            chapter.panel,
         );
         const onPhoto = Boolean(chapter.image);
         const ctaOnImage = Boolean(chapter.cta && !hasCopy);
@@ -635,6 +637,9 @@ export function ScrollStory({
                     </ul>
                   </div>
                 )
+              ) : null}
+              {chapter.panel ? (
+                <div className="mx-auto w-full max-w-7xl px-6 pb-16 md:pb-24">{chapter.panel}</div>
               ) : null}
             </section>
           ) : null}

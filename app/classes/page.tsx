@@ -64,7 +64,7 @@ export default async function ClassesPage() {
     <>
       <PublicHeader />
       <main>
-        <ScrollStory chapters={chapters} />
+        <ScrollStory snap chapters={chapters} />
       </main>
       <SiteFooter />
     </>

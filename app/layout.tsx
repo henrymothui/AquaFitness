@@ -27,7 +27,7 @@ export const dynamic = "force-dynamic";
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
   return (
-    <html lang={locale} className={`${outfit.variable} ${display.variable} h-full antialiased`}>
+    <html lang={locale} data-scroll-behavior="smooth" className={`${outfit.variable} ${display.variable} h-full antialiased`}>
       <body className="min-h-full bg-white text-black">{children}</body>
     </html>
   );
