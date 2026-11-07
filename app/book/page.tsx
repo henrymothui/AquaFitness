@@ -4,8 +4,12 @@ import { PublicHeader, SiteFooter } from "@/components/site-chrome";
 import { getDemoAccount } from "@/lib/demo-auth";
 import { availableCredits } from "@/lib/demo-member";
 import { bookingCounts, customerSales, getCustomer, getSettings, listClassTypes, listUpcoming } from "@/lib/queries";
+import { getI18n } from "@/lib/i18n";
 
-export const metadata = { title: "Book a class" };
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: t.nav.join };
+}
 
 export default async function BookPage({
   searchParams,
@@ -13,6 +17,7 @@ export default async function BookPage({
   searchParams: Promise<{ error?: string; notice?: string }>;
 }) {
   const query = await searchParams;
+  const { locale, t } = await getI18n();
   const account = await getDemoAccount();
   if (account?.role !== "public") redirect("/login");
 
@@ -38,9 +43,11 @@ export default async function BookPage({
           counts={Object.fromEntries(bookingMap)}
           timezone={settings.timezone}
           credits={credits}
-          memberName={customer?.full_name ?? "Member"}
+          memberName={customer?.full_name ?? t.publicPages.account.member}
           error={query.error}
           notice={query.notice}
+          locale={locale}
+          copy={t.publicPages.booking}
         />
       </main>
       <SiteFooter />

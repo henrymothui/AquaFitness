@@ -1,31 +1,21 @@
 import { PublicHeader, SiteFooter } from "@/components/site-chrome";
+import { getI18n } from "@/lib/i18n";
 
-export const metadata = { title: "Terms of Service" };
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: t.publicPages.legal.termsTitle };
+}
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  const { t } = await getI18n();
+  const copy = t.publicPages.legal;
   return (
     <>
       <PublicHeader />
       <main className="mx-auto w-full max-w-3xl px-4 pb-8">
-        <h1 className="text-4xl text-lagoon">Terms of Service</h1>
+        <h1 className="text-4xl text-lagoon">{copy.termsTitle}</h1>
         <div className="mt-6 space-y-4 text-sm leading-7 text-ink/80">
-          <p>
-            Hydrofit Aquafitness runs pool classes at 12 Vo Truong Toan, Ho Chi Minh City. The
-            timetable, special classes, and pack prices on this site are what the studio is
-            currently offering.
-          </p>
-          <p>
-            A place is held when the studio desk records the booking, and only while the class
-            still has room. A class stops taking bookings when it reaches its spot limit.
-          </p>
-          <p>
-            Class packs are paid at the desk. Each class you attend uses one credit. A pack ends
-            when those credits are used, or when its validity period ends if one is set.
-          </p>
-          <p>
-            Class times can change. If a session moves or is cancelled, the studio will say so at
-            the desk.
-          </p>
+          {copy.terms.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
         </div>
       </main>
       <SiteFooter />

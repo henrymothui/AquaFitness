@@ -21,12 +21,20 @@ export function SiteHeader({
   links,
   joinLabel,
   languageLabel,
+  loginLabel,
+  logoutLabel,
+  primaryLabel,
+  menuLabel,
   role,
 }: {
   locale: Locale;
   links: NavLink[];
   joinLabel: string;
   languageLabel: string;
+  loginLabel: string;
+  logoutLabel: string;
+  primaryLabel: string;
+  menuLabel: string;
   role: DemoRole | null;
 }) {
   const pathname = usePathname();
@@ -61,7 +69,7 @@ export function SiteHeader({
           </span>
         </Link>
 
-        <nav className="ml-4 hidden items-center xl:flex" aria-label="Primary">
+        <nav className="ml-4 hidden items-center xl:flex" aria-label={primaryLabel}>
           {links.map((link) => {
             const on = active(pathname, link.href);
             return (
@@ -80,7 +88,7 @@ export function SiteHeader({
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
-          {role ? <form action={logout} className="hidden sm:block"><button className="px-2 py-2 text-xs font-semibold text-black/55 transition hover:text-black">Sign out</button></form> : <Link href="/login" className="hidden px-2 py-2 text-xs font-semibold text-black/65 transition hover:text-black sm:inline-flex">Log in</Link>}
+          {role ? <form action={logout} className="hidden sm:block"><button className="px-2 py-2 text-xs font-semibold text-black/55 transition hover:text-black">{logoutLabel}</button></form> : <Link href="/login" className="hidden px-2 py-2 text-xs font-semibold text-black/65 transition hover:text-black sm:inline-flex">{loginLabel}</Link>}
           <div className="hidden items-center gap-2 text-xs font-semibold tracking-[0.16em] sm:flex" aria-label={languageLabel}>
             <button
               type="button"
@@ -113,7 +121,7 @@ export function SiteHeader({
             className="inline-flex h-10 w-10 items-center justify-center xl:hidden"
             aria-expanded={open}
             aria-controls="mobile-menu"
-            aria-label="Menu"
+            aria-label={menuLabel}
             onClick={() => setOpen((value) => !value)}
           >
             <span className="flex h-[18px] w-5 flex-col justify-between">
@@ -144,7 +152,7 @@ export function SiteHeader({
         }`}
       >
         <div className="min-h-full border-t border-black/10 bg-white px-4" inert={!open}>
-          <nav className="flex flex-col py-2" aria-label="Primary">
+          <nav className="flex flex-col py-2" aria-label={primaryLabel}>
             {links.map((link, index) => {
               const on = active(pathname, link.href);
               return (
@@ -187,7 +195,7 @@ export function SiteHeader({
           </div>
           <div className="flex items-center justify-between border-t border-black/10 py-3">
             {role === "admin" ? <Link href="/studio" onClick={() => setOpen(false)} className="text-sm font-semibold text-[#315e50]">Studio workspace →</Link> : <span />}
-            {role ? <form action={logout}><button className="text-sm font-medium text-black/55">Sign out</button></form> : <Link href="/login" onClick={() => setOpen(false)} className="text-sm font-medium text-black/55">Log in</Link>}
+            {role ? <form action={logout}><button className="text-sm font-medium text-black/55">{logoutLabel}</button></form> : <Link href="/login" onClick={() => setOpen(false)} className="text-sm font-medium text-black/55">{loginLabel}</Link>}
           </div>
         </div>
       </div>

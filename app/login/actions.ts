@@ -2,10 +2,13 @@
 
 import { redirect } from "next/navigation";
 import { authenticateDemoAccount, clearDemoRole, type DemoAccount } from "@/lib/demo-auth";
+import { getI18n } from "@/lib/i18n";
 
 export type LoginState = { error?: string } | undefined;
 
 export async function login(_state: LoginState, formData: FormData): Promise<LoginState> {
+  const { t } = await getI18n();
+  const errors = t.publicPages.loginErrors;
   const username = String(formData.get("username") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
 
@@ -14,12 +17,12 @@ export async function login(_state: LoginState, formData: FormData): Promise<Log
     account = await authenticateDemoAccount(username, password);
   } catch (cause) {
     if (cause instanceof Error && cause.message.includes("demo_accounts") && cause.message.includes("schema cache")) {
-      return { error: "Database setup is incomplete. Apply the pending Supabase migrations, then try again." };
+      return { error: errors.setup };
     }
-    return { error: "We couldn’t connect to the account database. Please try again." };
+    return { error: errors.connect };
   }
   if (!account) {
-    return { error: "That username and password don’t match. Try one of the demo accounts below." };
+    return { error: errors.credentials };
   }
   redirect(account.role === "admin" ? "/studio" : "/");
 }

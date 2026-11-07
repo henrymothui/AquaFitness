@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getDemoAccount } from "@/lib/demo-auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rpc } from "@/lib/rpc";
+import { getI18n } from "@/lib/i18n";
 
 export type ProfileActionState = {
   message: string;
@@ -12,12 +13,14 @@ export type ProfileActionState = {
 };
 
 export async function cancelMemberBooking(formData: FormData) {
+  const { t } = await getI18n();
+  const messages = t.publicPages.accountMessages;
   const account = await getDemoAccount();
   if (account?.role !== "public" || !account.customer_id) redirect("/login");
 
   const bookingId = String(formData.get("booking_id") ?? "");
   if (!/^[\da-f-]{36}$/i.test(bookingId)) {
-    redirect(`/account?error=${encodeURIComponent("This booking could not be cancelled.")}`);
+    redirect(`/account?error=${encodeURIComponent(messages.cancelInvalid)}`);
   }
 
   const { data, error } = await createAdminClient()
@@ -25,7 +28,7 @@ export async function cancelMemberBooking(formData: FormData) {
     .select("customer_id, status, sessions(starts_at, status)")
     .eq("id", bookingId)
     .maybeSingle();
-  if (error) redirect(`/account?error=${encodeURIComponent("This booking could not be cancelled. Please try again.")}`);
+  if (error) redirect(`/account?error=${encodeURIComponent(messages.cancelTryAgain)}`);
 
   const session = Array.isArray(data?.sessions) ? data.sessions[0] : data?.sessions;
   if (
@@ -36,27 +39,29 @@ export async function cancelMemberBooking(formData: FormData) {
     session.status !== "scheduled" ||
     new Date(session.starts_at).getTime() <= Date.now()
   ) {
-    redirect(`/account?error=${encodeURIComponent("Only your upcoming booked classes can be cancelled.")}`);
+    redirect(`/account?error=${encodeURIComponent(messages.cancelUpcoming)}`);
   }
 
   try {
     await rpc("cancel_booking", { p_booking_id: bookingId });
   } catch {
-    redirect(`/account?error=${encodeURIComponent("The class could not be cancelled. Please try again.")}`);
+    redirect(`/account?error=${encodeURIComponent(messages.cancelFailed)}`);
   }
 
   revalidatePath("/account");
   revalidatePath("/book");
-  redirect(`/account?notice=${encodeURIComponent("Class cancelled. Your credit was returned.")}`);
+  redirect(`/account?notice=${encodeURIComponent(messages.cancelled)}`);
 }
 
 export async function updateMemberProfile(
   _previousState: ProfileActionState,
   formData: FormData,
 ): Promise<ProfileActionState> {
+  const { t } = await getI18n();
+  const messages = t.publicPages.accountMessages;
   const account = await getDemoAccount();
   if (account?.role !== "public") {
-    return { status: "error", message: "Please sign in to update your profile." };
+    return { status: "error", message: messages.signIn };
   }
 
   const fullName = String(formData.get("full_name") ?? "").trim();
@@ -66,13 +71,13 @@ export async function updateMemberProfile(
   const address = String(formData.get("address") ?? "").trim();
 
   if (!fullName || fullName.length > 120) {
-    return { status: "error", message: "Enter a name up to 120 characters." };
+    return { status: "error", message: messages.name };
   }
   if (phone.length > 40) {
-    return { status: "error", message: "Phone number must be 40 characters or fewer." };
+    return { status: "error", message: messages.phone };
   }
   if (title && title !== "Mr" && title !== "Mrs") {
-    return { status: "error", message: "Choose Mr or Mrs for your title." };
+    return { status: "error", message: messages.title };
   }
   if (dateOfBirth) {
     const parsedDate = new Date(`${dateOfBirth}T00:00:00.000Z`);
@@ -81,15 +86,15 @@ export async function updateMemberProfile(
       && parsedDate.toISOString().slice(0, 10) === dateOfBirth
       && dateOfBirth <= new Date().toISOString().slice(0, 10);
     if (!validDate) {
-      return { status: "error", message: "Enter a valid date of birth that is not in the future." };
+      return { status: "error", message: messages.birthDate };
     }
   }
   if (address.length > 300) {
-    return { status: "error", message: "Address must be 300 characters or fewer." };
+    return { status: "error", message: messages.address };
   }
 
   if (!account.customer_id) {
-    return { status: "error", message: "Your member profile is not linked to the studio yet." };
+    return { status: "error", message: messages.unlinked };
   }
 
   const { error } = await createAdminClient()
@@ -104,12 +109,12 @@ export async function updateMemberProfile(
     .eq("id", account.customer_id);
 
   if (error) {
-    return { status: "error", message: "Your profile could not be saved. Please try again." };
+    return { status: "error", message: messages.saveFailed };
   }
 
   revalidatePath("/account");
   revalidatePath("/studio/customers");
   revalidatePath(`/studio/customers/${account.customer_id}`);
 
-  return { status: "success", message: "Your profile has been updated." };
+  return { status: "success", message: messages.saved };
 }

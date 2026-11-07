@@ -5,8 +5,8 @@ export function formatMoney(cents: number) {
   }).format(cents / 100);
 }
 
-export function formatWhen(iso: string, timeZone: string) {
-  return new Intl.DateTimeFormat("en-SG", {
+export function formatWhen(iso: string, timeZone: string, locale: "en" | "vi" = "en") {
+  return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-SG", {
     timeZone,
     weekday: "short",
     day: "numeric",
@@ -16,16 +16,16 @@ export function formatWhen(iso: string, timeZone: string) {
   }).format(new Date(iso));
 }
 
-export function formatTime(iso: string, timeZone: string) {
-  return new Intl.DateTimeFormat("en-SG", {
+export function formatTime(iso: string, timeZone: string, locale: "en" | "vi" = "en") {
+  return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-SG", {
     timeZone,
     hour: "numeric",
     minute: "2-digit",
   }).format(new Date(iso));
 }
 
-export function formatDay(iso: string, timeZone: string) {
-  return new Intl.DateTimeFormat("en-SG", {
+export function formatDay(iso: string, timeZone: string, locale: "en" | "vi" = "en") {
+  return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-SG", {
     timeZone,
     weekday: "long",
     day: "numeric",

@@ -10,8 +10,12 @@ import {
   getCustomer,
   getSettings,
 } from "@/lib/queries";
+import { getI18n } from "@/lib/i18n";
 
-export const metadata = { title: "My account" };
+export async function generateMetadata() {
+  const { t } = await getI18n();
+  return { title: t.publicPages.account.member };
+}
 
 export default async function AccountPage({
   searchParams,
@@ -19,6 +23,7 @@ export default async function AccountPage({
   searchParams: Promise<{ notice?: string; error?: string }>;
 }) {
   const query = await searchParams;
+  const { locale, t } = await getI18n();
   const account = await getDemoAccount();
   if (account?.role === "admin") redirect("/studio");
   if (account?.role !== "public") redirect("/login");
@@ -50,7 +55,7 @@ export default async function AccountPage({
             </p>
           ) : null}
           <AccountTabs
-            memberName={customer?.full_name ?? "Member"}
+            memberName={customer?.full_name ?? t.publicPages.account.member}
             title={customer?.title ?? null}
             dateOfBirth={customer?.date_of_birth ?? null}
             address={customer?.address ?? null}
@@ -62,6 +67,8 @@ export default async function AccountPage({
             creditOrders={creditOrders}
             bookings={bookings}
             timezone={settings.timezone}
+            locale={locale}
+            copy={t.publicPages.account}
           />
         </div>
       </main>

@@ -14,6 +14,7 @@ export type StoryChapter = {
   word: string;
   eyebrow?: string;
   paragraphs?: string[];
+  beforeCopy?: ReactNode;
   points?: StoryPoint[];
   listLabel?: string;
   list?: readonly string[];
@@ -315,6 +316,7 @@ export function ScrollStory({
       {chapters.map((chapter, index) => {
         const hasCopy = Boolean(
           chapter.paragraphs?.length ||
+            chapter.beforeCopy ||
             chapter.list?.length ||
             chapter.points?.length ||
             chapter.quotes?.length ||
@@ -480,7 +482,7 @@ export function ScrollStory({
 
           {hasCopy ? (
             <section className="bg-white">
-              {chapter.paragraphs?.length || eyebrowInCopy || chapter.aside || (chapter.cta && !ctaOnImage) ? (
+              {chapter.paragraphs?.length || eyebrowInCopy || chapter.beforeCopy || chapter.aside || (chapter.cta && !ctaOnImage) ? (
                 <div
                   data-reveal="left"
                   className={`mx-auto w-full max-w-3xl px-6 text-center ${
@@ -498,6 +500,7 @@ export function ScrollStory({
                   }`}
                   style={glide ? { animationRange: "entry 4% cover 30%" } : blockStyle(true)}
                 >
+                  {chapter.beforeCopy ? <div className="mb-8">{chapter.beforeCopy}</div> : null}
                   {eyebrowInCopy ? (
                     <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#e10600]">{chapter.eyebrow}</p>
                   ) : null}

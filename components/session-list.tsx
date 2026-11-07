@@ -1,21 +1,25 @@
 import Link from "next/link";
 import { ClassImage } from "@/components/class-image";
-import { formatTime, spotsLabel } from "@/lib/format";
 import type { SessionView } from "@/lib/queries";
+import type { Dictionary, Locale } from "@/lib/i18n";
 
 export function SessionCards({
   sessions,
   timeZone,
   counts,
   hrefBase = "/sessions",
+  copy,
+  locale,
 }: {
   sessions: SessionView[];
   timeZone: string;
   counts: Map<string, number>;
   hrefBase?: string;
+  copy: Dictionary["publicPages"]["booking"];
+  locale: Locale;
 }) {
   if (sessions.length === 0) {
-    return <p className="text-sm text-ink/70">Nothing on the schedule yet.</p>;
+    return <p className="text-sm text-ink/70">{copy.scheduleEmpty}</p>;
   }
 
   return (
@@ -36,12 +40,12 @@ export function SessionCards({
               <span className="min-w-0">
                 <span className="block font-medium">{session.title}</span>
                 <span className="mt-1 block text-sm text-ink/70">
-                  {formatTime(session.startsAt, timeZone)}
-                  {session.kind === "event" ? " · Event" : ""}
-                  {session.creditsRequired > 1 ? ` · ${session.creditsRequired} credits` : ""}
+                  {new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en", { hour: "numeric", minute: "2-digit", timeZone }).format(new Date(session.startsAt))}
+                  {session.kind === "event" ? ` · ${copy.special}` : ""}
+                  {session.creditsRequired > 1 ? ` · ${session.creditsRequired} ${copy.credits}` : session.creditsRequired === 1 ? ` · 1 ${copy.credit}` : ""}
                 </span>
                 <span className="mt-2 inline-flex rounded-full bg-sand px-2.5 py-0.5 text-xs font-medium tracking-wide text-tide">
-                  {spotsLabel(taken, session.capacity)} · {session.capacity} max
+                  {taken >= session.capacity ? copy.full : `${session.capacity - taken} ${session.capacity - taken === 1 ? copy.spotLeft : copy.spotsLeft}`} · {session.capacity} {locale === "vi" ? "tối đa" : "max"}
                 </span>
               </span>
             </Link>

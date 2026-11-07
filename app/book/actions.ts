@@ -5,41 +5,42 @@ import { redirect } from "next/navigation";
 import { getDemoAccount } from "@/lib/demo-auth";
 import { getCustomer } from "@/lib/queries";
 import { rpc } from "@/lib/rpc";
-
-function fail(message: string): never {
-  redirect(`/book?error=${encodeURIComponent(message.slice(0, 240))}`);
-}
+import { getI18n } from "@/lib/i18n";
 
 export async function checkoutBookings(formData: FormData) {
+  const { t } = await getI18n();
+  const messages = t.publicPages.bookingMessages;
   const account = await getDemoAccount();
   if (account?.role !== "public") redirect("/login");
 
   const sessionIds = [...new Set(formData.getAll("session_id").map(String))];
-  if (!sessionIds.length) fail("Add a class to your booking before checkout.");
+  if (!sessionIds.length) redirect(`/book?error=${encodeURIComponent(messages.add)}`);
   if (sessionIds.length > 12 || sessionIds.some((id) => !/^[\da-f-]{36}$/i.test(id))) {
-    fail("Your booking could not be checked. Please refresh and try again.");
+    redirect(`/book?error=${encodeURIComponent(messages.invalid)}`);
   }
 
   const customer = account.customer_id ? await getCustomer(account.customer_id) : null;
-  if (!customer) fail("Your member profile is not linked to the studio yet. Please contact the front desk.");
+  if (!customer) redirect(`/book?error=${encodeURIComponent(messages.unlinked)}`);
 
   try {
     await rpc("checkout_sessions", {
       p_session_ids: sessionIds,
       p_customer_id: customer.id,
     });
-  } catch (cause) {
-    const message = cause instanceof Error ? cause.message.replace(/^(ERROR:\s*)+/i, "") : "Checkout could not be completed.";
-    fail(message);
+  } catch {
+    redirect(`/book?error=${encodeURIComponent(messages.checkout)}`);
   }
 
   for (const id of sessionIds) revalidatePath(`/studio/sessions/${id}`);
   revalidatePath("/account");
   revalidatePath("/book");
-  redirect(`/account?notice=${encodeURIComponent(`${sessionIds.length} class${sessionIds.length === 1 ? "" : "es"} booked. Your credits have been updated.`)}`);
+  const notice = sessionIds.length === 1 ? messages.bookedOne : messages.bookedMany.replace("{count}", String(sessionIds.length));
+  redirect(`/account?notice=${encodeURIComponent(notice)}`);
 }
 
 export async function placeCreditOrder(formData: FormData) {
+  const { t } = await getI18n();
+  const messages = t.publicPages.bookingMessages;
   const account = await getDemoAccount();
   if (account?.role !== "public" || !account.customer_id) redirect("/login");
 
@@ -55,7 +56,7 @@ export async function placeCreditOrder(formData: FormData) {
       return { id: record.id, quantity: Number(record.quantity) };
     });
   } catch {
-    fail("Your order could not be checked. Please refresh and try again.");
+    redirect(`/book/credits?error=${encodeURIComponent(messages.invalid)}`);
   }
 
   try {
@@ -64,12 +65,11 @@ export async function placeCreditOrder(formData: FormData) {
       p_package_ids: items.map((item) => item.id),
       p_quantities: items.map((item) => item.quantity),
     });
-  } catch (cause) {
-    const message = cause instanceof Error ? cause.message.replace(/^(ERROR:\s*)+/i, "") : "Your order could not be placed.";
-    fail(message);
+  } catch {
+    redirect(`/book/credits?error=${encodeURIComponent(messages.orderFailed)}`);
   }
 
   revalidatePath("/account");
   revalidatePath("/studio/orders");
-  redirect(`/account?notice=${encodeURIComponent("Order submitted. Your credits will be added after payment is confirmed.")}`);
+  redirect(`/account?notice=${encodeURIComponent(messages.orderSubmitted)}`);
 }

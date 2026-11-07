@@ -43,6 +43,37 @@ export default async function AboutPage() {
               line: visit.visitLine,
               word: visit.visitWord,
               eyebrow: visit.kicker,
+              beforeCopy: (
+                <div className="text-sm leading-6 text-black/70">
+                  <h2 className="text-xs font-semibold uppercase tracking-[0.28em] text-[#e10600]">{visit.socialTitle}</h2>
+                  <div className="mt-3 flex justify-center gap-4">
+                    <a
+                      href="https://www.facebook.com/share/1CWrQ54nQY/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Facebook"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#e10600]/25 text-[#e10600] transition-colors hover:bg-[#e10600] hover:text-white"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="currentColor">
+                        <path d="M14.2 8.4V6.9c0-.6.2-1 1-1H17V3.5h-2.4C12.2 3.5 11 4.8 11 6.8v1.6H8.8v2.6H11V21h3.1v-10h2.4l.4-2.6h-2.7z" />
+                      </svg>
+                    </a>
+                    <a
+                      href="https://www.instagram.com/hydrofitvn"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Instagram"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#e10600]/25 text-[#e10600] transition-colors hover:bg-[#e10600] hover:text-white"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
+                        <rect x="3.25" y="3.25" width="17.5" height="17.5" rx="5" />
+                        <circle cx="12" cy="12" r="4" />
+                        <circle cx="17.4" cy="6.6" r="0.9" fill="currentColor" stroke="none" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              ),
               paragraphs: [visit.intro, `${visit.name}. ${address}. ${visit.about}`, `${visit.hoursTitle}: ${visit.hours}`],
               cta: { href: directions, label: visit.directions, external: true },
               credit: {

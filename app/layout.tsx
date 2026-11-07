@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Oswald, Outfit } from "next/font/google";
 import "./globals.css";
-import { getLocale } from "@/lib/i18n";
+import { getI18n, getLocale } from "@/lib/i18n";
 
 const outfit = Outfit({
   subsets: ["latin", "latin-ext"],
@@ -14,13 +14,13 @@ const display = Oswald({
   variable: "--font-barlow",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Hydrofit",
-    template: "%s · Hydrofit",
-  },
-  description: "Pool classes in Ho Chi Minh City. Small groups. No contract.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return {
+    title: { default: "Hydrofit", template: "%s · Hydrofit" },
+    description: t.home.metaDescription,
+  };
+}
 
 export const dynamic = "force-dynamic";
 

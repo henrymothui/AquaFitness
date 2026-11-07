@@ -35,7 +35,6 @@ export default async function HomePage() {
               word: copy.heroWord,
               closer: copy.heroSub,
               featured: true,
-              cta: { href: "/book", label: copy.trial },
             },
             {
               line: water.waterLine,

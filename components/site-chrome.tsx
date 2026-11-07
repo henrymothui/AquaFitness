@@ -14,11 +14,11 @@ export async function PublicHeader() {
     { href: "/classes", label: t.nav.classes },
     { href: "/trainers", label: t.nav.trainers },
     { href: "/careers", label: t.nav.careers },
-    ...(role === "public" ? [{ href: "/account", label: "My account" }] : []),
+    ...(role === "public" ? [{ href: "/account", label: t.nav.account }] : []),
     ...(role === "admin" ? [{ href: "/studio", label: "Studio" }] : []),
   ];
   return (
-    <SiteHeader locale={locale} links={links} joinLabel={t.nav.join} languageLabel={t.nav.language} role={role} />
+    <SiteHeader locale={locale} links={links} joinLabel={t.nav.join} languageLabel={t.nav.language} loginLabel={t.nav.login} logoutLabel={t.nav.logout} primaryLabel={t.nav.primary} menuLabel={t.nav.menu} role={role} />
   );
 }
 
@@ -44,7 +44,7 @@ export async function SiteFooter() {
               © {year} Hydrofit. {t.footer.rights}
             </p>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <div className="flex items-center gap-1" aria-label="Social">
+              <div className="flex items-center gap-1" aria-label={t.footer.social}>
                 <a
                   href="https://www.instagram.com/hydrofitvn"
                   target="_blank"
