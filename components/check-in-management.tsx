@@ -131,8 +131,8 @@ export function CheckInManagement({
                 <td className="px-3 py-3 capitalize">{person.status.replaceAll("_", " ")}</td>
                 <td className="px-3 py-3"><div className="flex flex-wrap gap-2">
                   {session.status === "cancelled" ? <span className="text-xs text-ink/55">Course cancelled</span> : <>
-                    <BookingAction person={person} sessionId={session.id} kind="status" value="attended" activeLabel="Checked in" label="Check in" />
-                    <BookingAction person={person} sessionId={session.id} kind="status" value="no_show" activeLabel="Marked absent" label="Mark absent" />
+                    <BookingAction person={person} sessionId={session.id} value="attended" activeLabel="Checked in" label="Check in" />
+                    <BookingAction person={person} sessionId={session.id} value="no_show" activeLabel="Marked absent" label="Mark absent" />
                     <form action={cancelBooking}>
                       <input type="hidden" name="session_id" value={session.id} /><input type="hidden" name="booking_id" value={person.id} /><input type="hidden" name="return_to" value="/studio/check-in" />
                       <button className="rounded-lg border border-line px-3 py-2 text-xs font-semibold text-ink/70 hover:bg-slate-50">Cancel</button>
