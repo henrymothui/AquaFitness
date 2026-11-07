@@ -5,7 +5,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { setLocale } from "@/app/locale-action";
+import { logout } from "@/app/login/actions";
 import type { Locale } from "@/lib/i18n";
+import type { DemoRole } from "@/lib/demo-auth";
 
 export type NavLink = { href: string; label: string };
 
@@ -19,11 +21,13 @@ export function SiteHeader({
   links,
   joinLabel,
   languageLabel,
+  role,
 }: {
   locale: Locale;
   links: NavLink[];
   joinLabel: string;
   languageLabel: string;
+  role: DemoRole | null;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -76,6 +80,7 @@ export function SiteHeader({
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
+          {role ? <form action={logout} className="hidden sm:block"><button className="px-2 py-2 text-xs font-semibold text-black/55 transition hover:text-black">Sign out</button></form> : <Link href="/login" className="hidden px-2 py-2 text-xs font-semibold text-black/65 transition hover:text-black sm:inline-flex">Log in</Link>}
           <div className="hidden items-center gap-2 text-xs font-semibold tracking-[0.16em] sm:flex" aria-label={languageLabel}>
             <button
               type="button"
@@ -134,53 +139,55 @@ export function SiteHeader({
 
       <div
         id="mobile-menu"
-        className={`grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none xl:hidden ${
-          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        className={`fixed inset-x-0 bottom-0 top-[4.5rem] z-40 overflow-y-auto bg-white transition-[opacity,visibility] duration-300 md:top-20 xl:hidden ${
+          open ? "visible opacity-100" : "invisible pointer-events-none opacity-0"
         }`}
       >
-        <div className={open ? "overflow-hidden" : "pointer-events-none overflow-hidden"} inert={!open}>
-          <div className="border-t border-black/10 bg-white px-4">
-            <nav className="flex flex-col py-2" aria-label="Primary">
-              {links.map((link, index) => {
-                const on = active(pathname, link.href);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    aria-current={on ? "page" : undefined}
-                    style={{ transitionDelay: open ? `${70 + index * 45}ms` : "0ms" }}
-                    className={`block py-3 font-display text-[15px] font-medium uppercase tracking-[0.14em] transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none ${
-                      open ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
-                    } ${on ? "text-[#e10600]" : "text-black"}`}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </nav>
-            <div
-              className={`flex items-center justify-between border-t border-black/10 py-3 transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none ${
-                open ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
-              }`}
-              style={{ transitionDelay: open ? `${70 + links.length * 45}ms` : "0ms" }}
-            >
-              <div className="flex items-center gap-3 text-xs font-semibold tracking-[0.16em]">
-                <button type="button" onClick={() => choose("en")} className={locale === "en" ? "text-black" : "text-black/40"}>
-                  EN
-                </button>
-                <button type="button" onClick={() => choose("vi")} className={locale === "vi" ? "text-black" : "text-black/40"}>
-                  VI
-                </button>
-              </div>
-              <Link
-                href="/book"
-                onClick={() => setOpen(false)}
-                className="rounded-full bg-[#e10600] px-3 py-1.5 font-display text-xs uppercase tracking-[0.12em] text-white"
-              >
-                {joinLabel}
-              </Link>
+        <div className="min-h-full border-t border-black/10 bg-white px-4" inert={!open}>
+          <nav className="flex flex-col py-2" aria-label="Primary">
+            {links.map((link, index) => {
+              const on = active(pathname, link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  aria-current={on ? "page" : undefined}
+                  style={{ transitionDelay: open ? `${70 + index * 45}ms` : "0ms" }}
+                  className={`block py-3 font-display text-[15px] font-medium uppercase tracking-[0.14em] transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none ${
+                    open ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
+                  } ${on ? "text-[#e10600]" : "text-black"}`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+          <div
+            className={`flex items-center justify-between border-t border-black/10 py-3 transition-[opacity,transform] duration-300 ease-out motion-reduce:transition-none ${
+              open ? "translate-y-0 opacity-100" : "-translate-y-3 opacity-0"
+            }`}
+            style={{ transitionDelay: open ? `${70 + links.length * 45}ms` : "0ms" }}
+          >
+            <div className="flex items-center gap-3 text-xs font-semibold tracking-[0.16em]">
+              <button type="button" onClick={() => choose("en")} className={locale === "en" ? "text-black" : "text-black/40"}>
+                EN
+              </button>
+              <button type="button" onClick={() => choose("vi")} className={locale === "vi" ? "text-black" : "text-black/40"}>
+                VI
+              </button>
             </div>
+            <Link
+              href="/book"
+              onClick={() => setOpen(false)}
+              className="rounded-full bg-[#e10600] px-3 py-1.5 font-display text-xs uppercase tracking-[0.12em] text-white"
+            >
+              {joinLabel}
+            </Link>
+          </div>
+          <div className="flex items-center justify-between border-t border-black/10 py-3">
+            {role === "admin" ? <Link href="/studio" onClick={() => setOpen(false)} className="text-sm font-semibold text-[#315e50]">Studio workspace →</Link> : <span />}
+            {role ? <form action={logout}><button className="text-sm font-medium text-black/55">Sign out</button></form> : <Link href="/login" onClick={() => setOpen(false)} className="text-sm font-medium text-black/55">Log in</Link>}
           </div>
         </div>
       </div>

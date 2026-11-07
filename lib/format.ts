@@ -24,14 +24,13 @@ export function formatTime(iso: string, timeZone: string) {
   }).format(new Date(iso));
 }
 
-export function formatDay(isoDate: string) {
-  const [year, month, day] = isoDate.split("-").map(Number);
+export function formatDay(iso: string, timeZone: string) {
   return new Intl.DateTimeFormat("en-SG", {
+    timeZone,
     weekday: "long",
     day: "numeric",
     month: "long",
-    timeZone: "UTC",
-  }).format(new Date(Date.UTC(year, month - 1, day)));
+  }).format(new Date(iso));
 }
 
 export function dayKey(iso: string, timeZone: string) {

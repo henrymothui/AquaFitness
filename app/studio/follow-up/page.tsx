@@ -14,8 +14,9 @@ function flags(row: {
   const left = row.credits_total - row.credits_used;
   if (row.status === "exhausted" || left <= 0) labels.push("Used up");
   else if (left <= 2) labels.push("Low");
-  if (row.status === "expired") labels.push("Expired");
-  else if (row.expires_at && new Date(row.expires_at).getTime() - Date.now() <= 14 * 86400000) {
+  if (row.status === "expired" || (row.expires_at && new Date(row.expires_at).getTime() <= Date.now())) {
+    labels.push("Expired");
+  } else if (row.expires_at && new Date(row.expires_at).getTime() - Date.now() <= 14 * 86400000) {
     labels.push("Expiring");
   }
   return labels;

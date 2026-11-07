@@ -10,9 +10,8 @@ import {
   setCapacity,
   updateEvent,
 } from "@/app/studio/actions";
-import { dayKey, formatWhen, spotsLabel, timeInputFromIso } from "@/lib/format";
+import { dayKey, formatDay, formatTime, spotsLabel, timeInputFromIso } from "@/lib/format";
 import {
-  bookingCounts,
   eligiblePacks,
   getSession,
   getSettings,
@@ -29,20 +28,20 @@ export default async function StudioSessionPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ error?: string; notice?: string }>;
 }) {
-  const { id } = await params;
-  const query = await searchParams;
-  const session = await getSession(id);
-  if (!session) notFound();
-  const [settings, counts, people, classes] = await Promise.all([
+  const [query, settings, session] = await Promise.all([
+    searchParams,
     getSettings(),
-    bookingCounts([session.id]),
+    params.then(({ id }) => getSession(id)),
+  ]);
+  if (!session) notFound();
+  const [people, classes] = await Promise.all([
     roster(session.id),
     session.kind === "event" ? listClassTypes(false) : Promise.resolve([]),
   ]);
-  const taken = counts.get(session.id) ?? 0;
+  const activePeople = people.filter((person) => person.status !== "cancelled");
+  const taken = activePeople.length;
   const open = session.status === "scheduled" && taken < session.capacity;
   const packs = open ? await eligiblePacks(session.classTypeId, session.creditsRequired) : [];
-  const activePeople = people.filter((person) => person.status !== "cancelled");
 
   return (
     <main className="grid gap-6">
@@ -52,14 +51,21 @@ export default async function StudioSessionPage({
             {session.kind === "event" ? "Event" : "Class"}
             {session.status === "cancelled" ? " · cancelled" : ""}
           </p>
-          <h1 className="text-4xl text-lagoon">{session.title}</h1>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="inline-flex items-center gap-2 rounded-xl border border-pool/20 bg-[#edf6f9] px-4 py-2 text-sm font-semibold text-lagoon">
+              <span aria-hidden="true">◷</span>{formatDay(session.startsAt, settings.timezone)}
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-xl bg-lagoon px-4 py-2 text-sm font-semibold tabular-nums text-white">
+              <span aria-hidden="true">◷</span>{formatTime(session.startsAt, settings.timezone)}
+            </span>
+          </div>
+          <h1 className="mt-2 text-4xl text-lagoon">{session.title}</h1>
           <p className="mt-2 text-sm text-ink/70">
-            {formatWhen(session.startsAt, settings.timezone)} · {taken}/{session.capacity} ·{" "}
-            {spotsLabel(taken, session.capacity)}
+            {taken}/{session.capacity} · {spotsLabel(taken, session.capacity)}
           </p>
         </div>
-        <Link href={`/sessions/${session.id}`} className="text-sm font-medium text-pool">
-          Public page
+        <Link href="/studio/courses-schedule" className="text-sm font-medium text-pool">
+          ← Back to schedule
         </Link>
       </div>
       <Flash error={query.error} notice={query.notice} />
@@ -80,6 +86,12 @@ export default async function StudioSessionPage({
                   </option>
                 ))}
               </select>
+            </Field>
+            <Field label="Instructor">
+              <input name="instructor" defaultValue={session.instructor ?? ""} className={inputClass} />
+            </Field>
+            <Field label="Location">
+              <input name="location" defaultValue={session.location ?? ""} className={inputClass} />
             </Field>
             <Field label="Date">
               <input name="date" type="date" required defaultValue={dayKey(session.startsAt, settings.timezone)} className={inputClass} />
@@ -150,38 +162,36 @@ export default async function StudioSessionPage({
             {session.status === "cancelled" ? "This session is cancelled." : "This class is full."}
           </p>
         )}
-        <ul className="grid gap-3">
+        <ul className="divide-y divide-line rounded-xl border border-line">
           {activePeople.length === 0 ? (
-            <li className="text-sm text-ink/70">No one is booked.</li>
+            <li className="px-4 py-5 text-sm text-ink/70">No one is booked.</li>
           ) : (
             activePeople.map((person) => (
-              <li key={person.id} className="rounded-2xl border border-line px-4 py-3">
-                <p className="font-medium">{person.customerName}</p>
-                <p className="text-sm text-ink/70">
-                  {person.packageName} · {person.status} · {person.creditsLeft}{" "}
-                  {person.creditsLeft === 1 ? "credit" : "credits"} left on the pack
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {person.status !== "attended" ? (
-                    <form action={setBookingStatus}>
-                      <input type="hidden" name="session_id" value={session.id} />
-                      <input type="hidden" name="booking_id" value={person.id} />
-                      <input type="hidden" name="status" value="attended" />
-                      <button className={quietButtonClass}>Attended</button>
-                    </form>
-                  ) : null}
-                  {person.status !== "no_show" ? (
-                    <form action={setBookingStatus}>
-                      <input type="hidden" name="session_id" value={session.id} />
-                      <input type="hidden" name="booking_id" value={person.id} />
-                      <input type="hidden" name="status" value="no_show" />
-                      <button className={quietButtonClass}>No-show</button>
-                    </form>
-                  ) : null}
+              <li key={person.id} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="font-semibold text-ink">{person.customerName}</p>
+                  <p className="mt-1 text-sm text-ink/70">
+                    {person.packageName} · {person.status.replaceAll("_", " ")} · {person.creditsLeft}{" "}
+                    {person.creditsLeft === 1 ? "credit" : "credits"} left
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <form action={setBookingStatus}>
+                    <input type="hidden" name="session_id" value={session.id} />
+                    <input type="hidden" name="booking_id" value={person.id} />
+                    <input type="hidden" name="status" value="attended" />
+                    <button className={person.status === "attended" ? buttonClass : quietButtonClass} aria-pressed={person.status === "attended"}>Check-in</button>
+                  </form>
+                  <form action={setBookingStatus}>
+                    <input type="hidden" name="session_id" value={session.id} />
+                    <input type="hidden" name="booking_id" value={person.id} />
+                    <input type="hidden" name="status" value="no_show" />
+                    <button className={person.status === "no_show" ? buttonClass : quietButtonClass} aria-pressed={person.status === "no_show"}>Absence</button>
+                  </form>
                   <form action={cancelBooking}>
                     <input type="hidden" name="session_id" value={session.id} />
                     <input type="hidden" name="booking_id" value={person.id} />
-                    <button className={quietButtonClass}>Cancel booking</button>
+                    <button className={quietButtonClass}>Cancel</button>
                   </form>
                 </div>
               </li>

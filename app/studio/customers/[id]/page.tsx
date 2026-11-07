@@ -22,15 +22,15 @@ export default async function CustomerPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const customer = await getCustomer(id);
-  if (!customer) notFound();
-  const [sales, bookings, packages, discounts, settings] = await Promise.all([
+  const [customer, sales, bookings, packages, discounts, settings] = await Promise.all([
+    getCustomer(id),
     customerSales(id),
     customerBookings(id),
     listPackages(false),
     listDiscounts(false),
     getSettings(),
   ]);
+  if (!customer) notFound();
 
   return (
     <main className="grid gap-6">
@@ -42,6 +42,19 @@ export default async function CustomerPage({
             <input type="hidden" name="id" value={customer.id} />
             <Field label="Name">
               <input name="full_name" required defaultValue={customer.full_name} className={inputClass} />
+            </Field>
+            <Field label="Title">
+              <select name="title" defaultValue={customer.title ?? ""} className={inputClass}>
+                <option value="">Select a title</option>
+                <option value="Mr">Mr</option>
+                <option value="Mrs">Mrs</option>
+              </select>
+            </Field>
+            <Field label="Date of birth">
+              <input name="date_of_birth" type="date" defaultValue={customer.date_of_birth ?? ""} className={inputClass} />
+            </Field>
+            <Field label="Address">
+              <textarea name="address" rows={2} defaultValue={customer.address ?? ""} className={inputClass} />
             </Field>
             <Field label="Email">
               <input name="email" type="email" defaultValue={customer.email ?? ""} className={inputClass} />

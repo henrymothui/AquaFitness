@@ -1,13 +1,13 @@
 import Image from "next/image";
 
 export const inputClass =
-  "mt-1 w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none transition focus:border-pool focus:ring-4 focus:ring-pool/10";
+  "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-pool focus:ring-2 focus:ring-pool/15";
 
 export const buttonClass =
-  "inline-flex items-center justify-center rounded-full bg-lagoon px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-tide";
+  "inline-flex items-center justify-center rounded-lg bg-lagoon px-4 py-2.5 text-sm font-medium text-white transition hover:bg-tide";
 
 export const quietButtonClass =
-  "inline-flex items-center justify-center rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-ink transition hover:border-pool hover:text-lagoon";
+  "inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900";
 
 export function BrandMark({
   tone = "dark",
@@ -68,8 +68,8 @@ export function Field({
 
 export function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-3xl border border-line/80 bg-card p-5">
-      <h2 className="text-2xl tracking-wide text-lagoon">{title}</h2>
+    <section className="rounded-xl border border-[#e5e9ed] bg-white p-4 sm:p-5">
+      <h2>{title}</h2>
       <div className="mt-4">{children}</div>
     </section>
   );

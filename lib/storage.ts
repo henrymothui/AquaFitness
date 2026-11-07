@@ -10,6 +10,7 @@ const ALLOWED = new Map([
 
 export function imageUrl(path: string | null) {
   if (!path) return null;
+  if (path.startsWith("/brand/")) return path;
   const base = process.env.SUPABASE_URL?.replace(/\/$/, "");
   if (!base) return null;
   return `${base}/storage/v1/object/public/class-images/${path}`;
@@ -32,7 +33,7 @@ export async function saveImage(file: FormDataEntryValue | null, folder: string)
 }
 
 export async function removeImage(path: string | null) {
-  if (!path) return;
+  if (!path || path.startsWith("/")) return;
   const supabase = createAdminClient();
   await supabase.storage.from("class-images").remove([path]);
 }

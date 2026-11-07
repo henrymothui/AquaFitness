@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 
 export function PageBanner({
   kicker,
@@ -31,11 +30,9 @@ export function PageBanner({
 export function JoinBand({
   kicker,
   title,
-  cta,
 }: {
   kicker: string;
   title: string;
-  cta: string;
 }) {
   const mark = title.trim().split(/\s+/).pop() ?? "";
 
@@ -57,7 +54,7 @@ export function JoinBand({
           {mark}
         </p>
       ) : null}
-      <div className="relative mx-auto flex min-h-[28rem] w-full max-w-7xl flex-col items-start justify-end gap-8 px-6 pt-36 pb-12 md:min-h-[26rem] md:flex-row md:items-end md:justify-between md:py-16">
+      <div className="relative mx-auto flex min-h-[28rem] w-full max-w-7xl flex-col items-start justify-end px-6 pt-36 pb-12 md:min-h-[26rem] md:py-16">
         <div className="max-w-xl">
           <p className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.32em] text-white/75">
             <span className="h-px w-8 bg-[#e10600]" aria-hidden />
@@ -67,12 +64,6 @@ export function JoinBand({
             {title}
           </h2>
         </div>
-        <Link
-          href="/book"
-          className="inline-flex shrink-0 rounded-full bg-[#e10600] px-7 py-3.5 font-display text-sm font-medium uppercase tracking-[0.16em] text-white transition hover:bg-[#c10500]"
-        >
-          {cta}
-        </Link>
       </div>
       <div className="absolute inset-x-0 bottom-0 h-1 bg-[#e10600]" />
     </section>

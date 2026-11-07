@@ -35,6 +35,24 @@ export function todayISO(timeZone: string) {
   }).format(new Date());
 }
 
+export function monthKeyInTimeZone(date: Date, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}`;
+}
+
+export function upcomingMonthKeys(timeZone: string, monthsAhead = 12) {
+  const [year, month] = monthKeyInTimeZone(new Date(), timeZone).split("-").map(Number);
+  return Array.from({ length: monthsAhead + 1 }, (_, offset) => {
+    const date = new Date(Date.UTC(year, month - 1 + offset, 1));
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+  });
+}
+
 function zoneWallClock(date: Date, timeZone: string) {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone,

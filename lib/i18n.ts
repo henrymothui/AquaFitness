@@ -10,7 +10,7 @@ const en = {
     price: "Price",
     trainers: "Trainers",
     careers: "Careers",
-    join: "Join now",
+    join: "Book now",
     language: "Language",
   },
   footer: {
@@ -413,7 +413,7 @@ const vi: Dictionary = {
     price: "Giá",
     trainers: "Huấn luyện viên",
     careers: "Tuyển dụng",
-    join: "Đăng ký",
+    join: "Đặt lịch",
     language: "Ngôn ngữ",
   },
   footer: {

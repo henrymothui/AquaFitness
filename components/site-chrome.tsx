@@ -3,18 +3,22 @@ import { JoinBand } from "@/components/marketing";
 import { SiteHeader } from "@/components/site-header";
 import { BrandMark } from "@/components/ui";
 import { getI18n } from "@/lib/i18n";
+import { getDemoRole } from "@/lib/demo-auth";
 
 export async function PublicHeader() {
   const { locale, t } = await getI18n();
+  const role = await getDemoRole();
   const links = [
     { href: "/", label: t.nav.home },
     { href: "/about", label: t.nav.about },
     { href: "/classes", label: t.nav.classes },
     { href: "/trainers", label: t.nav.trainers },
     { href: "/careers", label: t.nav.careers },
+    ...(role === "public" ? [{ href: "/account", label: "My account" }] : []),
+    ...(role === "admin" ? [{ href: "/studio", label: "Studio" }] : []),
   ];
   return (
-    <SiteHeader locale={locale} links={links} joinLabel={t.nav.join} languageLabel={t.nav.language} />
+    <SiteHeader locale={locale} links={links} joinLabel={t.nav.join} languageLabel={t.nav.language} role={role} />
   );
 }
 
@@ -24,7 +28,7 @@ export async function SiteFooter() {
 
   return (
     <>
-      <JoinBand kicker={t.footer.bandKicker} title={t.footer.bandTitle} cta={t.footer.bandCta} />
+      <JoinBand kicker={t.footer.bandKicker} title={t.footer.bandTitle} />
       <footer id="site-footer" className="border-t border-black/10 bg-white text-black">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-6 py-5 md:flex-row md:items-center md:justify-between md:gap-8">
           <BrandMark size="sm" />

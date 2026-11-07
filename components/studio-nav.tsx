@@ -5,49 +5,39 @@ import { usePathname } from "next/navigation";
 import { BrandMark } from "@/components/ui";
 
 const links = [
-  { href: "/studio", label: "Today" },
-  { href: "/studio/classes", label: "Classes" },
-  { href: "/studio/schedules", label: "Weekly times" },
-  { href: "/studio/events", label: "Events" },
+  { href: "/studio/courses-schedule", label: "Courses" },
+  { href: "/studio/check-in", label: "Check-in" },
+  { href: "/studio/packages", label: "Package" },
+  { href: "/studio/orders", label: "Orders" },
   { href: "/studio/customers", label: "Customers" },
-  { href: "/studio/packages", label: "Packages" },
-  { href: "/studio/discounts", label: "Discounts" },
-  { href: "/studio/follow-up", label: "Follow-up" },
 ];
 
 export function StudioNav() {
   const pathname = usePathname();
+
   return (
-    <aside className="border-b border-white/10 bg-lagoon text-foam md:min-h-screen md:w-60 md:border-b-0 md:border-r">
-      <div className="px-4 py-5">
-        <Link href="/studio">
-          <BrandMark tone="light" size="sm" />
+    <aside className="border-b border-[#e5e9ed] bg-white md:sticky md:top-0 md:h-screen md:w-60 md:shrink-0 md:overflow-y-auto md:border-b-0 md:border-r">
+      <div className="flex items-center justify-between px-4 py-3 md:block md:px-5 md:py-5">
+        <Link href="/studio/courses-schedule" aria-label="Hydrofit studio home">
+          <BrandMark size="sm" />
         </Link>
-        <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.22em] text-white/55">
-          Studio desk
-        </p>
+        <span className="text-xs font-medium text-slate-400 md:mt-4 md:block">Studio</span>
       </div>
-      <nav className="flex gap-1 overflow-x-auto px-3 pb-4 md:flex-col md:overflow-visible">
+      <nav aria-label="Studio navigation" className="flex gap-1 overflow-x-auto px-3 pb-3 md:flex-col md:overflow-visible md:px-3 md:pb-5">
         {links.map((link) => {
-          const active = pathname === link.href;
+          const active = pathname === link.href || pathname.startsWith(`${link.href}/`) || (link.href === "/studio/orders" && pathname.startsWith("/studio/customers/billing")) || (link.href === "/studio/courses-schedule" && pathname.startsWith("/studio/sessions/"));
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition ${
-                active ? "bg-white text-lagoon shadow-sm" : "text-foam/90 hover:bg-white/10"
-              }`}
+              aria-current={active ? "page" : undefined}
+              className={`shrink-0 rounded-lg px-3 py-2 text-sm transition md:w-full ${active ? "bg-[#eaf4f8] font-semibold text-[#155b78]" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}
             >
               {link.label}
             </Link>
           );
         })}
-        <Link
-          href="/"
-          className="whitespace-nowrap rounded-full px-3 py-1.5 text-sm text-foam/70 hover:bg-white/10"
-        >
-          Public site
-        </Link>
+        <Link href="/" className="shrink-0 rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-slate-50 hover:text-slate-900 md:mt-3">Public site</Link>
       </nav>
     </aside>
   );

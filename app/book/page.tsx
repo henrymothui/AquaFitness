@@ -1,31 +1,47 @@
-import Link from "next/link";
-import { PageBanner } from "@/components/marketing";
+import { redirect } from "next/navigation";
+import { BookingExperience } from "@/components/booking-experience";
 import { PublicHeader, SiteFooter } from "@/components/site-chrome";
-import { getI18n } from "@/lib/i18n";
+import { getDemoAccount } from "@/lib/demo-auth";
+import { availableCredits } from "@/lib/demo-member";
+import { bookingCounts, customerSales, getCustomer, getSettings, listClassTypes, listUpcoming } from "@/lib/queries";
 
-export async function generateMetadata() {
-  const { t } = await getI18n();
-  return { title: t.booking.metaTitle };
-}
+export const metadata = { title: "Book a class" };
 
-export default async function BookPage() {
-  const { t } = await getI18n();
-  const copy = t.booking;
+export default async function BookPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; notice?: string }>;
+}) {
+  const query = await searchParams;
+  const account = await getDemoAccount();
+  if (account?.role !== "public") redirect("/login");
+
+  const [settings, sessions, classes, customer] = await Promise.all([
+    getSettings(),
+    listUpcoming(100),
+    listClassTypes(false),
+    account.customer_id ? getCustomer(account.customer_id) : Promise.resolve(null),
+  ]);
+  const [bookingMap, sales] = await Promise.all([
+    bookingCounts(sessions.map((session) => session.id)),
+    customer ? customerSales(customer.id) : Promise.resolve([]),
+  ]);
+  const credits = availableCredits(sales);
 
   return (
     <>
       <PublicHeader />
-      <main>
-        <PageBanner kicker={copy.kicker} title={copy.title} watermark={copy.watermark} />
-        <section className="mx-auto w-full max-w-7xl px-6 py-16 md:py-20">
-          <p className="max-w-xl text-base leading-7 text-black/75">{copy.body}</p>
-          <Link
-            href="/about"
-            className="mt-8 inline-flex rounded-full bg-[#e10600] px-6 py-3 font-display text-sm uppercase tracking-[0.14em] text-white hover:bg-[#c10500]"
-          >
-            {copy.cta}
-          </Link>
-        </section>
+      <main className="min-h-screen bg-[#f7f8f8] pb-16">
+        <BookingExperience
+          sessions={sessions}
+          classes={classes}
+          counts={Object.fromEntries(bookingMap)}
+          timezone={settings.timezone}
+          credits={credits}
+          memberName={customer?.full_name ?? "Member"}
+          error={query.error}
+          notice={query.notice}
+        />
       </main>
       <SiteFooter />
     </>
