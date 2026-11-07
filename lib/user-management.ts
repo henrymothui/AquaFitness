@@ -47,11 +47,13 @@ export async function registerMember(input: MemberRegistration) {
 /** Validate member credentials against Supabase Auth and return the linked app account. */
 export async function authenticateMember(email: string, password: string) {
   const normalizedEmail = email.trim().toLowerCase();
-  const supabase = createAdminClient();
-  const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
+  const authClient = createAdminClient();
+  const { data, error } = await authClient.auth.signInWithPassword({ email: normalizedEmail, password });
   if (error || !data.user) return null;
 
-  const { data: customer, error: accountError } = await supabase
+  // signInWithPassword replaces the client's service-role authorization with the
+  // member session. Use a fresh admin client for this server-side account lookup.
+  const { data: customer, error: accountError } = await createAdminClient()
     .from("customers")
     .select("id, email")
     .eq("auth_user_id", data.user.id)
