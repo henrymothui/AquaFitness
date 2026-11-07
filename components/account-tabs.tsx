@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import { cancelMemberBooking } from "@/app/account/actions";
+import { cancelMemberBooking, deleteMemberCreditOrder } from "@/app/account/actions";
 import { updateMemberProfile, type ProfileActionState } from "@/app/account/actions";
 import type { CreditOrderView, SaleView } from "@/lib/queries";
 import { formatDay, formatMoney, formatTime, formatWhen } from "@/lib/format";
@@ -31,7 +31,7 @@ function StatusPill({ status, copy }: { status: string; copy: Dictionary["public
       ? "border-black/10 bg-black/[0.04] text-black/55"
       : "border-amber-200 bg-amber-50 text-amber-700";
 
-  const labels: Record<string, string> = { attended: copy.checkedIn, no_show: copy.absent, booked: copy.booked, pending: copy.pending, paid: copy.paid, active: copy.active, rejected: copy.rejected, cancelled: copy.cancelled, expired: copy.expired, exhausted: copy.exhausted };
+  const labels: Record<string, string> = { attended: copy.checkedIn, no_show: copy.absent, booked: copy.booked, pending: copy.pending, pending_payment: copy.pending, paid: copy.paid, active: copy.active, rejected: copy.rejected, cancelled: copy.cancelled, expired: copy.expired, exhausted: copy.exhausted };
   const label = labels[status] ?? status.replaceAll("_", " ");
 
   return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold capitalize ${tone}`}>{label}</span>;
@@ -190,6 +190,17 @@ export function AccountTabs({
                       <div className="flex items-center gap-3">
                         <StatusPill status={order.status} copy={copy} />
                         <span className="text-sm font-semibold tabular-nums text-black/80">{formatMoney(order.priceCents)}</span>
+                        {order.status === "pending_payment" || order.status === "rejected" ? (
+                          <form
+                            action={deleteMemberCreditOrder}
+                            onSubmit={(event) => {
+                              if (!window.confirm(copy.deleteOrderConfirm)) event.preventDefault();
+                            }}
+                          >
+                            <input type="hidden" name="order_id" value={order.id} />
+                            <button className="text-xs font-semibold text-[#b32620] underline-offset-4 hover:underline">{copy.deleteOrder}</button>
+                          </form>
+                        ) : null}
                       </div>
                     </li>
                   ))}

@@ -53,6 +53,33 @@ export async function cancelMemberBooking(formData: FormData) {
   redirect(`/my-account?notice=${encodeURIComponent(messages.cancelled)}`);
 }
 
+export async function deleteMemberCreditOrder(formData: FormData) {
+  const { t } = await getI18n();
+  const messages = t.publicPages.accountMessages;
+  const account = await getCurrentAccount();
+  if (account?.role !== "public" || !account.customer_id) redirect("/log-in");
+
+  const orderId = String(formData.get("order_id") ?? "");
+  if (!/^[\da-f-]{36}$/i.test(orderId)) {
+    redirect(`/my-account?error=${encodeURIComponent(messages.deleteInvalid)}`);
+  }
+
+  try {
+    await rpc("delete_member_credit_order", {
+      p_order_id: orderId,
+      p_customer_id: account.customer_id,
+    });
+  } catch (cause) {
+    const message = cause instanceof Error ? cause.message : "";
+    const notAllowed = /pending or rejected/i.test(message);
+    redirect(`/my-account?error=${encodeURIComponent(notAllowed ? messages.deleteNotAllowed : messages.deleteFailed)}`);
+  }
+
+  revalidatePath("/my-account");
+  revalidatePath("/studio/pending-orders");
+  redirect(`/my-account?notice=${encodeURIComponent(messages.deleted)}`);
+}
+
 export async function updateMemberProfile(
   _previousState: ProfileActionState,
   formData: FormData,

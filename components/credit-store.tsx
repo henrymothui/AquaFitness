@@ -1,11 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import { placeCreditOrder } from "@/app/book/actions";
+import { startPageLoading } from "@/components/page-loading";
 import type { Dictionary, Locale } from "@/lib/i18n";
 
 type CreditPack = { id: string; name: string; credits: number; price: number; note: string };
 type Stage = "shop" | "cart" | "payment";
+
+function PlaceOrderButton({ label }: { label: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      disabled={pending}
+      aria-busy={pending}
+      className="w-full rounded-full bg-[#e10600] px-6 py-4 text-xs font-semibold uppercase tracking-[0.13em] text-white transition hover:bg-[#c10500] disabled:cursor-wait disabled:bg-[#c10500]"
+    >
+      {label}
+    </button>
+  );
+}
 
 function money(amount: number, locale: Locale) {
   return new Intl.NumberFormat(locale === "vi" ? "vi-VN" : "en-SG", { style: "currency", currency: "SGD" }).format(amount / 100);
@@ -126,9 +141,9 @@ export function CreditStore({ packs, copy, locale }: { packs: CreditPack[]; copy
               <ol className="mt-4 space-y-4">
                 {copy.steps.map((step, index) => <li key={step} className="flex gap-3 text-xs leading-5 text-black/55"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#fff0ef] text-[10px] font-semibold text-[#e10600]">{index + 1}</span><span>{step}</span></li>)}
               </ol>
-              <form action={placeCreditOrder} className="mt-6">
+              <form action={placeCreditOrder} className="mt-6" onSubmit={() => startPageLoading(60000)}>
                 <input type="hidden" name="items" value={JSON.stringify(items.map(({ pack, quantity }) => ({ id: pack.id, quantity })))} />
-                <button className="w-full rounded-full bg-[#e10600] px-6 py-4 text-xs font-semibold uppercase tracking-[0.13em] text-white transition hover:bg-[#c10500]">{copy.place} · {money(total, locale)}</button>
+                <PlaceOrderButton label={`${copy.place} · ${money(total, locale)}`} />
               </form>
             </div>
           </div>

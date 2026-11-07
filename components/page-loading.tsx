@@ -4,8 +4,8 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { WaterDropIcon } from "@/components/ui";
 
-export function startPageLoading() {
-  window.dispatchEvent(new Event("page-loading:start"));
+export function startPageLoading(timeoutMs = 15000) {
+  window.dispatchEvent(new CustomEvent("page-loading:start", { detail: timeoutMs }));
 }
 
 export default function PageLoading() {
@@ -28,14 +28,15 @@ export default function PageLoading() {
   }, [pathname, search]);
 
   useEffect(() => {
-    function showLoading() {
+    function showLoading(event?: Event) {
+      const timeoutMs = event instanceof CustomEvent && typeof event.detail === "number" ? event.detail : 15000;
       if (hideTimer.current) clearTimeout(hideTimer.current);
       loadingStartedAt.current = performance.now();
       setIsLoading(true);
       hideTimer.current = setTimeout(() => {
         loadingStartedAt.current = null;
         setIsLoading(false);
-      }, 15000);
+      }, timeoutMs);
     }
 
     function handleClick(event: MouseEvent) {
