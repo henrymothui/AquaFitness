@@ -27,6 +27,7 @@ export function CheckInManagement({
   const [search, setSearch] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [canceling, setCanceling] = useState<{ bookingId: string; sessionId: string; customerName: string; courseTitle: string } | null>(null);
 
   const courseTypes = useMemo(
     () => [...new Set(sessions.map((session) => session.classTypeName))].sort((a, b) => a.localeCompare(b)),
@@ -118,25 +119,25 @@ export function CheckInManagement({
           <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Name, email, course, instructor…" className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-pool" />
         </label>
       </div>
-      <div className="overflow-x-auto rounded-lg border border-line">
-        <table className="w-full min-w-[980px] border-collapse text-left text-sm">
-          <thead className="bg-slate-50 text-xs uppercase tracking-wide text-ink/55"><tr>{["Client", "Course", "Date & time", "Instructor", "Status", "Manage"].map((heading) => <th key={heading} scope="col" className="px-3 py-3 font-semibold">{heading}</th>)}</tr></thead>
-          <tbody className="divide-y divide-line">
-            {rows.length === 0 ? <tr><td colSpan={6} className="px-4 py-10 text-center text-sm text-ink/60">No bookings match these filters.</td></tr> : rows.map(({ session, person, date }) => (
-              <tr key={`${session.id}-${person.id}`} className="align-middle hover:bg-slate-50/70">
-                <td className="px-3 py-3"><p className="font-semibold text-ink">{person.customerName}</p><span className="mt-1 block text-xs text-ink/55">{person.customerEmail || "No email"}</span></td>
-                <td className="px-3 py-3"><p className="font-semibold text-ink">{session.title}</p><span className="mt-1 block text-xs text-ink/55">{session.classTypeName}</span></td>
-                <td className="whitespace-nowrap px-3 py-3">{new Intl.DateTimeFormat("en", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`))}<span className="mt-1 block text-xs text-ink/55">{new Intl.DateTimeFormat("en", { hour: "numeric", minute: "2-digit", timeZone: timezone }).format(new Date(session.startsAt))}</span></td>
-                <td className="px-3 py-3">{session.instructor || "—"}</td>
-                <td className="px-3 py-3 capitalize">{person.status.replaceAll("_", " ")}</td>
-                <td className="px-3 py-3"><div className="flex flex-wrap gap-2">
+      <div className="overflow-x-auto rounded-xl border border-line shadow-sm shadow-sky-950/5">
+        <table className="w-full min-w-[1120px] border-collapse text-left text-sm">
+          <thead className="bg-foam text-[11px] uppercase tracking-[0.12em] text-ink/65"><tr>{["Client", "Course", "Date & time", "Instructor", "Status", "Manage"].map((heading) => <th key={heading} scope="col" className="border-b border-line px-4 py-3.5 font-bold">{heading}</th>)}</tr></thead>
+          <tbody className="divide-y divide-line/80">
+            {rows.length === 0 ? <tr><td colSpan={6} className="px-4 py-12 text-center text-sm text-ink/60">No bookings match these filters.</td></tr> : rows.map(({ session, person, date }) => (
+              <tr key={`${session.id}-${person.id}`} className="align-middle transition-colors odd:bg-white even:bg-foam/35 hover:bg-sand/45">
+                <td className="px-4 py-3.5"><p className="font-semibold text-ink">{person.customerName}</p><span className="mt-1 block text-xs text-ink/55">{person.customerEmail || "No email"}</span></td>
+                <td className="px-4 py-3.5"><p className="font-semibold text-ink">{session.title}</p><span className="mt-1 block text-xs text-ink/55">{session.classTypeName}</span></td>
+                <td className="whitespace-nowrap px-4 py-3.5">{new Intl.DateTimeFormat("en", { weekday: "short", month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`))}<span className="mt-1 block text-xs text-ink/55">{new Intl.DateTimeFormat("en", { hour: "numeric", minute: "2-digit", timeZone: timezone }).format(new Date(session.startsAt))}</span></td>
+                <td className="px-4 py-3.5">{session.instructor || "—"}</td>
+                <td className="px-4 py-3.5"><span className="inline-flex min-w-24 justify-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold capitalize text-ink/75">{person.status.replaceAll("_", " ")}</span></td>
+                <td className="px-4 py-3.5"><div className="flex flex-nowrap gap-2">
                   {session.status === "cancelled" ? <span className="text-xs text-ink/55">Course cancelled</span> : <>
                     <BookingAction person={person} sessionId={session.id} value="attended" activeLabel="Checked in" label="Check in" />
-                    <BookingAction person={person} sessionId={session.id} value="no_show" activeLabel="Marked absent" label="Mark absent" />
-                    <form action={cancelBooking}>
-                      <input type="hidden" name="session_id" value={session.id} /><input type="hidden" name="booking_id" value={person.id} /><input type="hidden" name="return_to" value="/studio/check-in" />
-                      <button className="rounded-lg border border-line px-3 py-2 text-xs font-semibold text-ink/70 hover:bg-slate-50">Cancel</button>
-                    </form>
+                    <BookingAction person={person} sessionId={session.id} value="no_show" activeLabel="Absence" label="Absence" />
+                    <button type="button" onClick={() => setCanceling({ bookingId: person.id, sessionId: session.id, customerName: person.customerName, courseTitle: session.title })} className="inline-flex h-8 w-28 items-center justify-center gap-1.5 rounded-lg border border-line bg-white px-2 text-xs font-semibold text-ink/75 transition hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink/40">
+                      <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" className="h-3.5 w-3.5"><path d="m4 4 8 8m0-8-8 8" /></svg>
+                      Cancel
+                    </button>
                   </>}
                 </div></td>
               </tr>
@@ -145,6 +146,24 @@ export function CheckInManagement({
         </table>
       </div>
       <p className="text-sm text-ink/60">{rows.length} {rows.length === 1 ? "booking" : "bookings"}</p>
+
+      {canceling ? (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4" onClick={(event) => { if (event.target === event.currentTarget) setCanceling(null); }}>
+          <section role="alertdialog" aria-modal="true" aria-labelledby="cancel-booking-title" aria-describedby="cancel-booking-description" className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl sm:p-6">
+            <h2 id="cancel-booking-title" className="text-lg font-semibold text-ink">Cancel this booking?</h2>
+            <p id="cancel-booking-description" className="mt-2 text-sm leading-6 text-ink/65">This will cancel {canceling.customerName}’s booking for {canceling.courseTitle} and return the credit.</p>
+            <div className="mt-6 flex justify-end gap-2">
+              <button type="button" onClick={() => setCanceling(null)} className="h-9 rounded-lg border border-line bg-white px-4 text-sm font-semibold text-ink/75 transition hover:bg-slate-50">Keep booking</button>
+              <form action={cancelBooking}>
+                <input type="hidden" name="session_id" value={canceling.sessionId} />
+                <input type="hidden" name="booking_id" value={canceling.bookingId} />
+                <input type="hidden" name="return_to" value="/studio/check-in" />
+                <button className="h-9 rounded-lg bg-ink px-4 text-sm font-semibold text-white transition hover:bg-ink/85">Confirm cancel</button>
+              </form>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -165,6 +184,11 @@ function BookingAction({
   const active = person.status === value;
   return <form action={setBookingStatus}>
     <input type="hidden" name="session_id" value={sessionId} /><input type="hidden" name="booking_id" value={person.id} /><input type="hidden" name="status" value={active ? "booked" : value} /><input type="hidden" name="return_to" value="/studio/check-in" />
-    <button aria-pressed={active} className={`rounded-lg px-3 py-2 text-xs font-semibold ${active ? "bg-pool text-white" : "border border-line text-ink/70 hover:bg-slate-50"}`}>{active ? activeLabel : label}</button>
+    <button aria-pressed={active} className={`inline-flex h-8 w-28 items-center justify-center gap-1.5 rounded-lg border px-2 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink/40 ${active ? value === "attended" ? "border-emerald-300 bg-emerald-100 text-emerald-900" : "border-amber-300 bg-amber-100 text-amber-900" : "border-line bg-white text-ink/75 hover:bg-slate-50"}`}>
+      <svg aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5 shrink-0">
+        {value === "attended" ? <path d="m3.5 8 3 3 6-6" /> : <><circle cx="8" cy="8" r="5.5" /><path d="M5.5 8h5" /></>}
+      </svg>
+      <span>{active ? activeLabel : label}</span>
+    </button>
   </form>;
 }

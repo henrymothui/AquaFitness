@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDemoAccount } from "@/lib/demo-auth";
+import { getCurrentAccount } from "@/lib/auth";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rpc } from "@/lib/rpc";
 import { getI18n } from "@/lib/i18n";
@@ -15,12 +15,12 @@ export type ProfileActionState = {
 export async function cancelMemberBooking(formData: FormData) {
   const { t } = await getI18n();
   const messages = t.publicPages.accountMessages;
-  const account = await getDemoAccount();
-  if (account?.role !== "public" || !account.customer_id) redirect("/login");
+  const account = await getCurrentAccount();
+  if (account?.role !== "public" || !account.customer_id) redirect("/log-in");
 
   const bookingId = String(formData.get("booking_id") ?? "");
   if (!/^[\da-f-]{36}$/i.test(bookingId)) {
-    redirect(`/account?error=${encodeURIComponent(messages.cancelInvalid)}`);
+    redirect(`/my-account?error=${encodeURIComponent(messages.cancelInvalid)}`);
   }
 
   const { data, error } = await createAdminClient()
@@ -28,7 +28,7 @@ export async function cancelMemberBooking(formData: FormData) {
     .select("customer_id, status, sessions(starts_at, status)")
     .eq("id", bookingId)
     .maybeSingle();
-  if (error) redirect(`/account?error=${encodeURIComponent(messages.cancelTryAgain)}`);
+  if (error) redirect(`/my-account?error=${encodeURIComponent(messages.cancelTryAgain)}`);
 
   const session = Array.isArray(data?.sessions) ? data.sessions[0] : data?.sessions;
   if (
@@ -39,18 +39,18 @@ export async function cancelMemberBooking(formData: FormData) {
     session.status !== "scheduled" ||
     new Date(session.starts_at).getTime() <= Date.now()
   ) {
-    redirect(`/account?error=${encodeURIComponent(messages.cancelUpcoming)}`);
+    redirect(`/my-account?error=${encodeURIComponent(messages.cancelUpcoming)}`);
   }
 
   try {
     await rpc("cancel_booking", { p_booking_id: bookingId });
   } catch {
-    redirect(`/account?error=${encodeURIComponent(messages.cancelFailed)}`);
+    redirect(`/my-account?error=${encodeURIComponent(messages.cancelFailed)}`);
   }
 
-  revalidatePath("/account");
-  revalidatePath("/book");
-  redirect(`/account?notice=${encodeURIComponent(messages.cancelled)}`);
+  revalidatePath("/my-account");
+  revalidatePath("/book-now");
+  redirect(`/my-account?notice=${encodeURIComponent(messages.cancelled)}`);
 }
 
 export async function updateMemberProfile(
@@ -59,7 +59,7 @@ export async function updateMemberProfile(
 ): Promise<ProfileActionState> {
   const { t } = await getI18n();
   const messages = t.publicPages.accountMessages;
-  const account = await getDemoAccount();
+  const account = await getCurrentAccount();
   if (account?.role !== "public") {
     return { status: "error", message: messages.signIn };
   }
@@ -112,9 +112,9 @@ export async function updateMemberProfile(
     return { status: "error", message: messages.saveFailed };
   }
 
-  revalidatePath("/account");
-  revalidatePath("/studio/customers");
-  revalidatePath(`/studio/customers/${account.customer_id}`);
+  revalidatePath("/my-account");
+  revalidatePath("/studio/directory");
+  revalidatePath(`/studio/directory/${account.customer_id}`);
 
   return { status: "success", message: messages.saved };
 }

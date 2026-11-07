@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { startPageLoading } from "@/components/page-loading";
 import { CourseCalendar } from "@/components/course-calendar";
 import { CourseEditDialog } from "@/components/course-edit-dialog";
 import { StudioCourseTypes } from "@/components/studio-course-types";
-import { createEvent, setBookingStatus } from "@/app/studio/actions";
-import { buttonClass, Field, inputClass, quietButtonClass } from "@/components/ui";
+import { setBookingStatus } from "@/app/studio/actions";
+import { Field, inputClass } from "@/components/ui";
 import { monthKeyInTimeZone, upcomingMonthKeys } from "@/lib/dates";
 import type { ClassType, SessionView } from "@/lib/queries";
 
@@ -51,27 +52,16 @@ export function CourseScheduleTabs({
     counts.set(person.sessionId, (counts.get(person.sessionId) ?? 0) + 1);
     return counts;
   }, new Map<string, number>()));
-  const tabs = [
-    { id: "courses", label: "Schedule" },
-    { id: "calendar", label: "Calendar" },
-    { id: "types", label: "Course types" },
-  ] as const;
-
   return (
     <div>
-      <div role="tablist" aria-label="Courses management" className="mb-4 flex overflow-x-auto border-b border-line">
-        {tabs.map((item) => <button key={item.id} id={`${item.id}-tab`} role="tab" aria-selected={tab === item.id} aria-controls={`${item.id}-panel`} onClick={() => setTab(item.id)} className={`shrink-0 border-b-2 px-4 py-3 text-sm font-semibold transition ${tab === item.id ? "border-pool text-pool" : "border-transparent text-ink/55 hover:text-ink"}`}>
-          {item.label}
-        </button>)}
-      </div>
-      <section id="courses-panel" role="tabpanel" aria-labelledby="courses-tab" hidden={tab !== "courses"}>
+      <section hidden={tab !== "courses"}>
         <CourseList sessions={allSessions} participants={participants} timezone={timezone} courseTypes={courseTypes} month={month} courseTypeId={initialCourseType ?? ""} />
       </section>
-      <section id="calendar-panel" role="tabpanel" aria-labelledby="calendar-tab" hidden={tab !== "calendar"}>
+      <section hidden={tab !== "calendar"}>
         <CourseCalendar month={month} sessions={scheduledSessions} classes={activeCourseTypes} counts={calendarCounts} timezone={timezone} />
       </section>
-      <section id="types-panel" role="tabpanel" aria-labelledby="types-tab" hidden={tab !== "types"}>
-        <StudioCourseTypes courses={courseTypes} returnTo="/studio/courses-schedule?tab=types" embedded />
+      <section hidden={tab !== "types"}>
+        <StudioCourseTypes courses={courseTypes} returnTo="/studio/course-type" embedded />
       </section>
     </div>
   );
@@ -79,8 +69,6 @@ export function CourseScheduleTabs({
 function CourseList({ sessions, participants, timezone, courseTypes, month, courseTypeId }: { sessions: SessionView[]; participants: Participant[]; timezone: string; courseTypes: ClassType[]; month: string; courseTypeId: string }) {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [adding, setAdding] = useState(false);
-  const activeCourseTypes = courseTypes.filter((item) => item.active);
   const monthOptions = [...new Set([
     ...upcomingMonthKeys(timezone),
     month,
@@ -104,18 +92,20 @@ function CourseList({ sessions, participants, timezone, courseTypes, month, cour
       <div className="flex flex-wrap items-end gap-3">
         <label className="grid gap-1 text-xs font-medium text-ink/65">Month
           <select aria-label="Navigate courses by month" value={month} onChange={(event) => {
-            const query = new URLSearchParams({ month: event.target.value, tab: "courses" });
+            const query = new URLSearchParams({ month: event.target.value });
             if (courseTypeId) query.set("course_type", courseTypeId);
-            router.push(`/studio/courses-schedule?${query.toString()}`);
+            startPageLoading();
+            router.push(`/studio/schedule?${query.toString()}`);
           }} className={`${inputClass} min-w-48`}>
             {monthOptions.map((value) => <option key={value} value={value}>{new Intl.DateTimeFormat("en", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${value}-01T12:00:00Z`))}</option>)}
           </select>
         </label>
         <label className="grid gap-1 text-xs font-medium text-ink/65">Course type
           <select aria-label="Filter courses by course type" value={courseTypeId} onChange={(event) => {
-            const query = new URLSearchParams({ month, tab: "courses" });
+            const query = new URLSearchParams({ month });
             if (event.target.value) query.set("course_type", event.target.value);
-            router.push(`/studio/courses-schedule?${query.toString()}`);
+            startPageLoading();
+            router.push(`/studio/schedule?${query.toString()}`);
           }} className={`${inputClass} min-w-48`}>
             <option value="">All course types</option>
             {[...courseTypes].sort((a, b) => a.name.localeCompare(b.name)).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
@@ -123,7 +113,6 @@ function CourseList({ sessions, participants, timezone, courseTypes, month, cour
         </label>
         <p className="pb-2 text-sm text-ink/60">{monthSessions.length} {monthSessions.length === 1 ? "course" : "courses"} this month</p>
       </div>
-      <button type="button" onClick={() => setAdding(true)} disabled={activeCourseTypes.length === 0} className={`${buttonClass} disabled:cursor-not-allowed disabled:opacity-50`}>Add course</button>
     </div>
     <div className="overflow-x-auto rounded-xl border border-line bg-white">
       <table className="w-full min-w-[1080px] border-collapse text-left text-sm">
@@ -147,23 +136,7 @@ function CourseList({ sessions, participants, timezone, courseTypes, month, cour
         </tbody>
       </table>
     </div>
-    {adding ? <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 p-4" onMouseDown={(event) => { if (event.target === event.currentTarget) setAdding(false); }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="add-course-title" className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-6">
-        <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-wide text-ink/50">Course schedule</p><h2 id="add-course-title" className="mt-1 text-xl font-semibold">Add course</h2></div><button type="button" aria-label="Close add course form" onClick={() => setAdding(false)} className={quietButtonClass}>×</button></div>
-        <p className="mt-2 text-sm text-ink/60">Choose a date and time, then add the course to the schedule.</p>
-        {activeCourseTypes.length === 0 ? <p className="mt-5 border-t border-line pt-4 text-sm text-ink/60">Add an active course type before scheduling a course.</p> : <form action={createEvent} className="mt-5 grid gap-3 border-t border-line pt-4">
-          <Field label="Course title"><input name="title" required placeholder="e.g. Aqua Strength" className={inputClass} /></Field>
-          <Field label="Course type"><select name="class_type_id" required className={inputClass}>{activeCourseTypes.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></Field>
-          <Field label="Date"><input name="date" type="date" required defaultValue={new Intl.DateTimeFormat("en-CA", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date())} className={inputClass} /></Field>
-          <div className="grid grid-cols-2 gap-3"><Field label="Start"><input name="start_time" type="time" defaultValue="10:00" required className={inputClass} /></Field><Field label="End"><input name="end_time" type="time" defaultValue="10:45" required className={inputClass} /></Field></div>
-          <div className="grid grid-cols-2 gap-3"><Field label="Max participants"><input name="capacity" type="number" min={1} max={100} defaultValue={10} required className={inputClass} /></Field><Field label="Price in credits"><input name="credits_required" type="number" min={1} max={20} defaultValue={1} required className={inputClass} /></Field></div>
-          <div className="grid grid-cols-2 gap-3"><Field label="Instructor"><input name="instructor" placeholder="Instructor name" className={inputClass} /></Field><Field label="Location"><input name="location" placeholder="Pool or studio" className={inputClass} /></Field></div>
-          <input type="hidden" name="return_to" value="/studio/courses-schedule" />
-          <div className="flex gap-2 pt-1"><button className={buttonClass}>Create course</button><button type="button" onClick={() => setAdding(false)} className={quietButtonClass}>Cancel</button></div>
-        </form>}
-      </section>
-    </div> : null}
-    <CourseEditDialog session={selected} classes={courseTypes} timezone={timezone} month={month} tab="courses" onClose={() => setSelectedId(null)} />
+    <CourseEditDialog session={selected} classes={courseTypes} timezone={timezone} month={month} onClose={() => setSelectedId(null)} />
   </>;
 }
 

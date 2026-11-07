@@ -1,15 +1,11 @@
-import { redirect } from "next/navigation";
+import StudioCoursesPage from "@/components/studio-courses-page";
 
-export const metadata = { title: "Course types" };
+export const metadata = { title: "Course Type" };
 
 export default async function CourseTypesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; notice?: string }>;
+  searchParams: Promise<{ month?: string; course_type?: string; error?: string; notice?: string }>;
 }) {
-  const query = await searchParams;
-  const params = new URLSearchParams({ tab: "types" });
-  if (query.error) params.set("error", query.error);
-  if (query.notice) params.set("notice", query.notice);
-  redirect(`/studio/courses-schedule?${params.toString()}`);
+  return <StudioCoursesPage searchParams={searchParams.then((params) => ({ ...params, tab: "types" }))} />;
 }

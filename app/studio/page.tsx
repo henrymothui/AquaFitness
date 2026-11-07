@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function StudioHomePage() {
-  redirect("/studio/courses-schedule");
+  redirect("/studio/schedule");
 }

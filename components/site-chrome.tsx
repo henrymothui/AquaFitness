@@ -3,18 +3,18 @@ import { JoinBand } from "@/components/marketing";
 import { SiteHeader } from "@/components/site-header";
 import { BrandMark } from "@/components/ui";
 import { getI18n } from "@/lib/i18n";
-import { getDemoRole } from "@/lib/demo-auth";
+import { getCurrentRole } from "@/lib/auth";
 
 export async function PublicHeader() {
   const { locale, t } = await getI18n();
-  const role = await getDemoRole();
+  const role = await getCurrentRole();
   const links = [
     { href: "/", label: t.nav.home },
     { href: "/about", label: t.nav.about },
     { href: "/classes", label: t.nav.classes },
     { href: "/trainers", label: t.nav.trainers },
     { href: "/careers", label: t.nav.careers },
-    ...(role === "public" ? [{ href: "/account", label: t.nav.account }] : []),
+    ...(role === "public" ? [{ href: "/my-account", label: t.nav.account }] : []),
     ...(role === "admin" ? [{ href: "/studio", label: "Studio" }] : []),
   ];
   return (

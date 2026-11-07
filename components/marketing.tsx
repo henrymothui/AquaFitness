@@ -43,6 +43,7 @@ export function JoinBand({
         alt=""
         fill
         sizes="100vw"
+        loading="eager"
         className="object-cover object-[32%_center] md:object-[62%_center]"
       />
       <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.55)_48%,rgba(0,0,0,0.2)_100%)] md:bg-[linear-gradient(105deg,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.62)_32%,rgba(0,0,0,0.2)_64%,rgba(0,0,0,0.28)_100%)]" />

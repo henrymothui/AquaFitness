@@ -163,7 +163,7 @@ export function AccountTabs({
                     <p className="mt-4 font-display text-5xl font-semibold tabular-nums">{creditsAvailable}</p>
                     <p className="mt-1 text-sm text-white/55">{copy.ready}</p>
                   </div>
-                  <Link href="/book/credits" className="inline-flex min-h-11 w-40 shrink-0 items-center justify-center rounded-full bg-[#e10600] px-5 py-3 text-center font-display text-xs font-semibold uppercase tracking-[0.1em] text-white transition hover:bg-[#c10500]">
+                  <Link href="/book-now/credits" className="inline-flex min-h-11 w-40 shrink-0 items-center justify-center rounded-full bg-[#e10600] px-5 py-3 text-center font-display text-xs font-semibold uppercase tracking-[0.1em] text-white transition hover:bg-[#c10500]">
                   {copy.purchaseCredit}
                   </Link>
                 </div>
@@ -178,7 +178,7 @@ export function AccountTabs({
             <section className={cardClass}>
               <SectionTitle kicker={copy.purchaseHistory} title={copy.orders} />
               {sales.length === 0 && creditOrders.length === 0 ? (
-                <div className="mt-5"><EmptyState title={copy.noOrders} description={copy.noPurchases} link={{ href: "/packages", label: copy.explorePackages }} /></div>
+                <div className="mt-5"><EmptyState title={copy.noOrders} description={copy.noPurchases} link={{ href: "/book-now/credits", label: copy.explorePackages }} /></div>
               ) : (
                 <ul className="mt-1 divide-y divide-black/[0.07]">
                   {creditOrders.map((order) => (
@@ -219,7 +219,7 @@ export function AccountTabs({
                 kicker={copy.calendar}
                 title={copy.schedule}
                 aside={(
-                  <Link href="/book" className="inline-flex min-h-11 w-40 items-center justify-center rounded-full bg-[#e10600] px-5 py-3 text-center font-display text-xs font-bold uppercase tracking-[0.1em] text-white shadow-md shadow-[#e10600]/20 transition hover:bg-[#c10500] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e10600]">
+                  <Link href="/book-now" className="inline-flex min-h-11 w-40 items-center justify-center rounded-full bg-[#e10600] px-5 py-3 text-center font-display text-xs font-bold uppercase tracking-[0.1em] text-white shadow-md shadow-[#e10600]/20 transition hover:bg-[#c10500] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#e10600]">
                     {copy.bookCourse}
                   </Link>
                 )}

@@ -36,7 +36,7 @@ export function StudioCourseTypes({ courses, returnTo, embedded = false }: { cou
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           {embedded ? <h2>Course types</h2> : <h1>Course types</h1>}
-          <p className="mt-2 text-sm text-slate-500">Manage the course types used for class bookings and schedules.</p>
+          <p className="mt-2 text-sm text-slate-500">Manage the course types used for class bookings and dated classes.</p>
         </div>
         <button type="button" onClick={() => setAdding(true)} className={buttonClass}>Add course</button>
       </div>
@@ -131,7 +131,7 @@ export function StudioCourseTypes({ courses, returnTo, embedded = false }: { cou
         <div className="fixed inset-0 z-[60] grid place-items-center bg-slate-950/50 p-4" onClick={(event) => { if (event.target === event.currentTarget) setDeleting(null); }}>
           <section role="dialog" aria-modal="true" aria-labelledby="delete-course-type-title" className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl sm:p-6">
             <h2 id="delete-course-type-title">Delete {deleting.name}?</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">This permanently removes the course type. Enter the admin code to confirm. Course types used by schedules, classes, or packages must be unlinked first.</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">This permanently removes the course type. Enter the admin code to confirm. Course types used by classes or packages must be unlinked first.</p>
             <form action={deleteClassType} className="mt-5 grid gap-4">
               {returnTo ? <input type="hidden" name="return_to" value={returnTo} /> : null}
               <input type="hidden" name="id" value={deleting.id} />

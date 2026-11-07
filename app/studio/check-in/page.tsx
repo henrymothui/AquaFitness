@@ -20,8 +20,8 @@ export default async function CheckInPage({
     <main className="grid w-full gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1>Check-in</h1>
-          <p className="mt-1 text-sm text-slate-500">Filter courses and manage attendance, absences, and cancellations.</p>
+          <h1>Operations</h1>
+          <p className="mt-1 text-sm text-slate-500">Manage course check-in, attendance, absences, and cancellations.</p>
         </div>
         <p className="text-sm text-slate-500">{sessions.length} courses · {participants.length} active bookings</p>
       </div>

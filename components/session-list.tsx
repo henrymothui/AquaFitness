@@ -7,7 +7,7 @@ export function SessionCards({
   sessions,
   timeZone,
   counts,
-  hrefBase = "/sessions",
+  hrefBase = "/classes",
   copy,
   locale,
 }: {
@@ -41,7 +41,6 @@ export function SessionCards({
                 <span className="block font-medium">{session.title}</span>
                 <span className="mt-1 block text-sm text-ink/70">
                   {new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en", { hour: "numeric", minute: "2-digit", timeZone }).format(new Date(session.startsAt))}
-                  {session.kind === "event" ? ` · ${copy.special}` : ""}
                   {session.creditsRequired > 1 ? ` · ${session.creditsRequired} ${copy.credits}` : session.creditsRequired === 1 ? ` · 1 ${copy.credit}` : ""}
                 </span>
                 <span className="mt-2 inline-flex rounded-full bg-sand px-2.5 py-0.5 text-xs font-medium tracking-wide text-tide">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { createPackage, updatePackage } from "@/app/studio/actions";
 import { Field, buttonClass, inputClass } from "@/components/ui";
 import { formatMoney } from "@/lib/format";
@@ -54,7 +55,10 @@ export function StudioPackages({
                     <h2>{item.name}</h2>
                     <p className="mt-1 text-sm font-semibold text-slate-700">{formatMoney(item.price_cents)}</p>
                   </div>
-                  <button type="button" onClick={() => setEditing(item)} className="shrink-0 rounded-lg border border-[#dce4e9] px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Edit</button>
+                  <div className="flex shrink-0 gap-2">
+                    <button type="button" onClick={() => setEditing(item)} className="rounded-lg border border-[#dce4e9] px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Quick edit</button>
+                    <Link href={`/studio/package/${item.id}`} className="rounded-lg border border-[#dce4e9] px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Full editor</Link>
+                  </div>
                 </div>
                 <p className="mt-3 min-h-12 text-sm leading-6 text-slate-600">{item.description || "No description added."}</p>
                 <div className="mt-3 border-t border-slate-100 pt-3 text-xs leading-5 text-slate-500">
@@ -83,7 +87,7 @@ export function StudioPackages({
               <button type="button" onClick={close} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-xl text-slate-500 hover:bg-slate-100">×</button>
             </div>
             <form key={pack?.id ?? "new-package"} action={pack ? updatePackage : createPackage} className="grid gap-4">
-              <input type="hidden" name="return_to" value="/studio/packages" />
+              <input type="hidden" name="return_to" value="/studio/package" />
               {pack ? <input type="hidden" name="id" value={pack.id} /> : null}
               <Field label="Name">
                 <input name="name" required defaultValue={pack?.name ?? ""} className={inputClass} placeholder="10 class pack" />

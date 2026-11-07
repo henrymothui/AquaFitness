@@ -20,23 +20,10 @@ export type ClassType = {
   active: boolean;
 };
 
-export type ScheduleRow = {
-  id: string;
-  class_type_id: string;
-  weekday: number;
-  start_time: string;
-  end_time: string;
-  capacity: number | null;
-  active: boolean;
-  class_name: string;
-};
-
 export type SessionView = {
   id: string;
   classTypeId: string;
   classTypeName: string;
-  scheduleId: string | null;
-  kind: "regular" | "event";
   title: string;
   description: string | null;
   ownDescription: string | null;
@@ -84,6 +71,7 @@ export type DiscountView = {
 export type Customer = {
   id: string;
   full_name: string;
+  username?: string | null;
   title: "Mr" | "Mrs" | null;
   date_of_birth: string | null;
   address: string | null;
@@ -120,20 +108,6 @@ export type CustomerBillingRow = SaleView & {
   customerId: string;
   customerName: string;
   customerEmail: string | null;
-};
-
-export type FollowUpRow = {
-  customer_package_id: string;
-  customer_id: string;
-  full_name: string;
-  email: string | null;
-  phone: string | null;
-  package_name: string;
-  credits_total: number;
-  credits_used: number;
-  expires_at: string | null;
-  status: string;
-  last_class_at: string | null;
 };
 
 export type RosterEntry = {
@@ -193,10 +167,6 @@ export function getSettings() {
   return getCachedSettings();
 }
 
-export async function ensureUpcoming() {
-  await rpc("extend_active_schedules");
-}
-
 export async function listClassTypes(includeInactive = false) {
   const supabase = createAdminClient();
   let query = supabase
@@ -213,13 +183,13 @@ export async function getClassType(id: string) {
 }
 
 const sessionSelect = `
-  id, class_type_id, schedule_id, kind, title, description, image_path,
+  id, class_type_id, title, description, image_path,
   starts_at, ends_at, capacity, credits_required, instructor, location, status, held,
   class_types (name, description, image_path, duration_minutes, color)
 `;
 
 const legacySessionSelect = `
-  id, class_type_id, schedule_id, kind, title, description, image_path,
+  id, class_type_id, title, description, image_path,
   starts_at, ends_at, capacity, credits_required, status, held,
   class_types (name, description, image_path, duration_minutes, color)
 `;
@@ -227,8 +197,6 @@ const legacySessionSelect = `
 type SessionRow = {
   id: string;
   class_type_id: string;
-  schedule_id: string | null;
-  kind: "regular" | "event";
   title: string | null;
   description: string | null;
   image_path: string | null;
@@ -264,8 +232,6 @@ function mapSession(row: SessionRow): SessionView {
     id: row.id,
     classTypeId: row.class_type_id,
     classTypeName: classType?.name ?? "Class",
-    scheduleId: row.schedule_id,
-    kind: row.kind,
     title: row.title?.trim() || classType?.name || "Class",
     description: row.description ?? classType?.description ?? null,
     ownDescription: row.description,
@@ -302,11 +268,6 @@ function typedSessionQuery(query: unknown) {
 }
 
 export async function listSessionsBetween(from: string, to: string) {
-  // Normal studio pages read the sessions already materialized by schedule sync.
-  // Only extend the 12-week horizon when the requested window approaches its edge.
-  if (new Date(to).getTime() > Date.now() + 70 * 24 * 60 * 60 * 1000) {
-    await ensureUpcoming();
-  }
   const supabase = createAdminClient();
   return sessionRows((selection) =>
     typedSessionQuery(supabase
@@ -320,7 +281,6 @@ export async function listSessionsBetween(from: string, to: string) {
 }
 
 export async function listUpcoming(limit: number) {
-  await ensureUpcoming();
   const supabase = createAdminClient();
   return sessionRows((selection) =>
     typedSessionQuery(supabase
@@ -334,7 +294,6 @@ export async function listUpcoming(limit: number) {
 }
 
 export async function listAllSessions() {
-  await ensureUpcoming();
   const supabase = createAdminClient();
   const all: SessionView[] = [];
   const pageSize = 500;
@@ -349,19 +308,6 @@ export async function listAllSessions() {
     all.push(...page);
     if (page.length < pageSize) return all;
   }
-}
-
-export async function listEvents() {
-  const supabase = createAdminClient();
-  return sessionRows((selection) =>
-    typedSessionQuery(supabase
-      .from("sessions")
-      .select(selection)
-      .eq("kind", "event")
-      .eq("status", "scheduled")
-      .gte("starts_at", new Date().toISOString())
-      .order("starts_at")),
-  );
 }
 
 export async function getSession(id: string) {
@@ -380,40 +326,6 @@ export async function bookingCounts(sessionIds: string[]) {
   });
   for (const row of data ?? []) counts.set(row.session_id, row.taken);
   return counts;
-}
-
-const getCachedSchedules = unstable_cache(async () => {
-  const supabase = createAdminClient();
-  const data = await rows<{
-    id: string;
-    class_type_id: string;
-    weekday: number;
-    start_time: string;
-    end_time: string;
-    capacity: number | null;
-    active: boolean;
-    class_types: { name: string } | { name: string }[] | null;
-  }>(
-    supabase
-      .from("schedules")
-      .select("id, class_type_id, weekday, start_time, end_time, capacity, active, class_types(name)")
-      .order("weekday")
-      .order("start_time"),
-  );
-  return data.map((row) => ({
-    id: row.id,
-    class_type_id: row.class_type_id,
-    weekday: row.weekday,
-    start_time: row.start_time,
-    end_time: row.end_time,
-    capacity: row.capacity,
-    active: row.active,
-    class_name: one(row.class_types)?.name ?? "Class",
-  })) satisfies ScheduleRow[];
-}, ["studio-schedules"], { revalidate: 120, tags: ["studio:schedules"] });
-
-export function listSchedules() {
-  return getCachedSchedules();
 }
 
 const getCachedPackages = unstable_cache(async (includeInactive: boolean) => {
@@ -461,8 +373,44 @@ export function listPackages(includeInactive = false) {
 }
 
 export async function getPackage(id: string) {
-  const packages = await listPackages(true);
-  return packages.find((item) => item.id === id) ?? null;
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("packages")
+    .select(
+      "id, name, description, credit_count, price_cents, validity_days, applies_to_all, active, package_class_types(class_type_id, class_types(name))",
+    )
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) return null;
+  const row = data as {
+    id: string;
+    name: string;
+    description: string | null;
+    credit_count: number;
+    price_cents: number;
+    validity_days: number | null;
+    applies_to_all: boolean;
+    active: boolean;
+    package_class_types: {
+      class_type_id: string;
+      class_types: { name: string } | { name: string }[] | null;
+    }[];
+  };
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    credit_count: row.credit_count,
+    price_cents: row.price_cents,
+    validity_days: row.validity_days,
+    applies_to_all: row.applies_to_all,
+    active: row.active,
+    classTypeIds: row.package_class_types.map((item) => item.class_type_id),
+    classNames: row.package_class_types
+      .map((item) => one(item.class_types)?.name)
+      .filter((name): name is string => Boolean(name)),
+  } satisfies PackageView;
 }
 
 const getCachedDiscounts = unstable_cache(async (includeInactive: boolean) => {
@@ -499,11 +447,6 @@ export function listDiscounts(includeInactive = false) {
   return getCachedDiscounts(includeInactive);
 }
 
-export async function getDiscount(id: string) {
-  const discounts = await listDiscounts(true);
-  return discounts.find((item) => item.id === id) ?? null;
-}
-
 export async function listCustomers(search = "") {
   const supabase = createAdminClient();
   const term = search.trim();
@@ -530,7 +473,14 @@ export async function listCustomers(search = "") {
     customers.push(...page);
     if (page.length < pageSize) break;
   }
-  return customers;
+  return withCustomerUsernames(customers);
+}
+
+function withCustomerUsernames(customers: Customer[]) {
+  return customers.map((customer) => ({
+    ...customer,
+    username: customer.email?.split("@")[0] ?? null,
+  }));
 }
 
 async function listCustomersWithoutProfileFields(
@@ -553,7 +503,7 @@ async function listCustomersWithoutProfileFields(
     customers.push(...page.map(withEmptyCustomerProfile));
     if (page.length < pageSize) break;
   }
-  return customers;
+  return withCustomerUsernames(customers);
 }
 
 export async function customerCreditBalances(customerIds: string[]) {
@@ -762,6 +712,37 @@ export async function pendingCreditOrders() {
   }));
 }
 
+export async function confirmedCreditOrders() {
+  const supabase = createAdminClient();
+  type CreditOrder = {
+    id: string;
+    customer_id: string;
+    package_name: string;
+    credits_total: number;
+    quantity: number;
+    price_cents: number;
+    paid_at: string;
+    customers: { full_name: string; email: string | null } | { full_name: string; email: string | null }[] | null;
+  };
+  const data = await rows<CreditOrder>(
+    supabase.from("credit_orders")
+      .select("id, customer_id, package_name, credits_total, quantity, price_cents, paid_at, customers(full_name, email)")
+      .eq("status", "paid")
+      .order("paid_at", { ascending: false }),
+  );
+  return data.map((row) => ({
+    id: row.id,
+    customerId: row.customer_id,
+    customerName: one(row.customers)?.full_name ?? "Customer",
+    customerEmail: one(row.customers)?.email ?? null,
+    packageName: row.package_name,
+    creditsTotal: row.credits_total,
+    quantity: row.quantity,
+    priceCents: row.price_cents,
+    confirmedAt: row.paid_at,
+  }));
+}
+
 export async function customerBillingHistory() {
   const supabase = createAdminClient();
   type BillingRecord = {
@@ -850,10 +831,6 @@ export async function customerBookings(customerId: string) {
       ),
     };
   });
-}
-
-export async function followUp() {
-  return (await rpc<FollowUpRow[]>("follow_up")) ?? [];
 }
 
 export async function roster(sessionId: string) {

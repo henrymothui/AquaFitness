@@ -1,0 +1,2 @@
+-- Auth users are created through the local Supabase Auth API, not by inserting
+-- directly into auth.users. Run `npm run seed:local` after `supabase db reset`.

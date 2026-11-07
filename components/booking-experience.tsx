@@ -107,7 +107,7 @@ export function BookingExperience({
               <span className="relative flex h-9 w-9 items-center justify-center rounded-full bg-[#fff0ef] text-[#e10600]" aria-hidden="true">▢<span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#e10600] text-[9px] font-bold text-white">{cart.length}</span></span>
               <span><span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-black/45">{copy.yourBooking}</span><span className="block text-sm font-semibold">{cart.length ? `${cart.length} ${cart.length === 1 ? copy.class : copy.classesPlural} · ${creditWord(cartCredits, copy)}` : copy.nothingAdded}</span></span>
             </button>
-            <Link href="/book/credits" className="flex h-[4.25rem] items-center justify-center rounded-2xl border border-white/20 px-5 text-sm font-semibold text-white transition hover:border-white/50 hover:bg-white/10">
+            <Link href="/book-now/credits" className="flex h-[4.25rem] items-center justify-center rounded-2xl border border-white/20 px-5 text-sm font-semibold text-white transition hover:border-white/50 hover:bg-white/10">
               {copy.purchaseCredits} <span className="ml-2" aria-hidden="true">→</span>
             </Link>
           </div>
@@ -168,7 +168,7 @@ export function BookingExperience({
                       <span className="mt-1 text-[9px] font-medium uppercase tracking-wide text-white/55">{new Intl.DateTimeFormat(dateLocale, { minute: "2-digit", timeZone: timezone }).format(new Date(session.startsAt))}</span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2"><span className="rounded-full px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.1em]" style={{ color: session.classTypeColor, backgroundColor: `${session.classTypeColor}1a` }}>{session.classTypeName}</span>{session.kind === "event" ? <span className="rounded-full bg-[#f3f3f3] px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-black/50">{copy.special}</span> : null}</div>
+                      <div className="flex flex-wrap items-center gap-2"><span className="rounded-full px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.1em]" style={{ color: session.classTypeColor, backgroundColor: `${session.classTypeColor}1a` }}>{session.classTypeName}</span></div>
                       <h4 className="mt-2 truncate font-display text-xl font-semibold leading-tight text-black">{session.title}</h4>
                       <p className="mt-1 truncate text-xs text-black/50">{session.instructor || (locale === "vi" ? "Huấn luyện viên Hydrofit" : "Hydrofit coach")}{session.location ? ` · ${session.location}` : (locale === "vi" ? " · Hồ Hydrofit" : " · Hydrofit pool")}</p>
                       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-black/45"><span>{session.durationMinutes} {locale === "vi" ? "phút" : "min"}</span><span>·</span><span>{creditWord(session.creditsRequired, copy)}</span><span>·</span><span className={spots <= 3 ? "font-semibold text-[#d52e28]" : ""}>{spots ? `${spots} ${spots === 1 ? copy.spotLeft : copy.spotsLeft}` : copy.full}</span></div>

@@ -1,18 +1,31 @@
 import { StudioNav } from "@/components/studio-nav";
+import Link from "next/link";
 import { logout } from "@/app/login/actions";
-import { getDemoRole } from "@/lib/demo-auth";
+import { getCurrentRole } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export const metadata = { title: "Studio" };
 
 export default async function StudioLayout({ children }: { children: React.ReactNode }) {
-  if ((await getDemoRole()) !== "admin") redirect("/");
+  if ((await getCurrentRole()) !== "admin") redirect("/");
 
   return (
     <div className="studio-shell min-h-screen bg-[#f7f9fb] text-ink md:flex">
       <StudioNav />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <header className="flex min-h-[60px] items-center justify-end gap-2 border-b border-[#e5e9ed] bg-white px-4 sm:px-7">
+          <Link
+            href="/studio/schedule"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+          >
+            Schedule
+          </Link>
+          <Link
+            href="/studio/package"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+          >
+            Package
+          </Link>
           <form action={logout}>
             <button className="rounded-lg px-3 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-50 hover:text-slate-900">Sign out</button>
           </form>

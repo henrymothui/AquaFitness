@@ -56,7 +56,7 @@ export default async function ClassesPage() {
         prices.single || prices.pack ? (
           <PricePair prices={prices} singleLabel={copy.singleLabel} packLabel={copy.packLabel} />
         ) : undefined,
-      cta: { href: "/book", label: copy.book },
+      cta: { href: "/book-now", label: copy.book },
     };
   });
 

@@ -19,7 +19,7 @@ export type ClassPrices = {
   pack: string | null;
 };
 
-const BOOKING_HREF = "/book";
+const BOOKING_HREF = "/book-now";
 
 export function ClassCatalog({
   items,

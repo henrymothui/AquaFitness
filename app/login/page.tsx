@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BrandMark } from "@/components/ui";
-import { getDemoRole } from "@/lib/demo-auth";
+import { BrandMark, WaterDropIcon } from "@/components/ui";
+import { getCurrentRole } from "@/lib/auth";
 import { getI18n } from "@/lib/i18n";
 import { LoginForm, LoginLocaleControl as LocaleButton } from "./login-form";
 
@@ -12,7 +12,7 @@ export async function generateMetadata() {
 }
 
 export default async function LoginPage() {
-  const role = await getDemoRole();
+  const role = await getCurrentRole();
   if (role) redirect(role === "admin" ? "/studio" : "/");
   const { locale, t } = await getI18n();
   const copy = t.publicPages.login;
@@ -46,7 +46,7 @@ export default async function LoginPage() {
               <span className="text-black/20" aria-hidden="true">|</span>
               <LocaleButton locale={locale} value="vi" label="VI" />
             </div>
-            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#e10600]">{copy.welcome} <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true"><path d="M12 3.5C9.4 7.4 6 10.3 6 14.1a6 6 0 0 0 12 0c0-3.8-3.4-6.7-6-10.6Z" stroke="currentColor" strokeWidth="1.7"/><path d="M9.4 15.6c.3 1.4 1.2 2.2 2.6 2.5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.7"/></svg></p>
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-[#e10600]">{copy.welcome} <WaterDropIcon className="h-4 w-4" /></p>
             <h2 className="mt-3 font-display text-5xl font-medium leading-none tracking-tight text-black sm:text-[3.6rem]">{copy.heading}</h2>
             <p className="mt-4 text-sm leading-6 text-black/55">{copy.intro}</p>
             <LoginForm copy={copy} />

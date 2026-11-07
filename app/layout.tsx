@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Oswald, Outfit } from "next/font/google";
 import "./globals.css";
 import { getI18n, getLocale } from "@/lib/i18n";
+import PageLoading from "@/components/page-loading";
 
 const outfit = Outfit({
   subsets: ["latin", "latin-ext"],
@@ -28,7 +30,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = await getLocale();
   return (
     <html lang={locale} data-scroll-behavior="smooth" className={`${outfit.variable} ${display.variable} h-full antialiased`}>
-      <body className="min-h-full bg-white text-black">{children}</body>
+      <body className="min-h-full bg-white text-black">
+        {children}
+        <Suspense fallback={null}>
+          <PageLoading />
+        </Suspense>
+      </body>
     </html>
   );
 }

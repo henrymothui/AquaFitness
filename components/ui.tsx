@@ -9,6 +9,21 @@ export const buttonClass =
 export const quietButtonClass =
   "inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-slate-900";
 
+export function WaterDropIcon({
+  className = "",
+  style,
+}: {
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} style={style} aria-hidden="true">
+      <path d="M12 3.5C9.4 7.4 6 10.3 6 14.1a6 6 0 0 0 12 0c0-3.8-3.4-6.7-6-10.6Z" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M9.4 15.6c.3 1.4 1.2 2.2 2.6 2.5" stroke="currentColor" strokeLinecap="round" strokeWidth="1.7" />
+    </svg>
+  );
+}
+
 export function BrandMark({
   tone = "dark",
   size = "md",

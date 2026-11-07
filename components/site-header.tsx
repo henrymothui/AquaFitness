@@ -7,7 +7,7 @@ import { useState } from "react";
 import { setLocale } from "@/app/locale-action";
 import { logout } from "@/app/login/actions";
 import type { Locale } from "@/lib/i18n";
-import type { DemoRole } from "@/lib/demo-auth";
+import type { AppRole } from "@/lib/auth";
 
 export type NavLink = { href: string; label: string };
 
@@ -35,7 +35,7 @@ export function SiteHeader({
   logoutLabel: string;
   primaryLabel: string;
   menuLabel: string;
-  role: DemoRole | null;
+  role: AppRole | null;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -88,7 +88,7 @@ export function SiteHeader({
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
-          {role ? <form action={logout} className="hidden sm:block"><button className="px-2 py-2 text-xs font-semibold text-black/55 transition hover:text-black">{logoutLabel}</button></form> : <Link href="/login" className="hidden px-2 py-2 text-xs font-semibold text-black/65 transition hover:text-black sm:inline-flex">{loginLabel}</Link>}
+          {role ? <form action={logout} className="hidden sm:block"><button className="px-2 py-2 text-xs font-semibold text-black/55 transition hover:text-black">{logoutLabel}</button></form> : <Link href="/log-in" className="hidden px-2 py-2 text-xs font-semibold text-black/65 transition hover:text-black sm:inline-flex">{loginLabel}</Link>}
           <div className="hidden items-center gap-2 text-xs font-semibold tracking-[0.16em] sm:flex" aria-label={languageLabel}>
             <button
               type="button"
@@ -111,7 +111,7 @@ export function SiteHeader({
             </button>
           </div>
           <Link
-            href="/book"
+            href="/book-now"
             className="hidden rounded-full bg-[#e10600] px-4 py-2 font-display text-sm font-medium uppercase tracking-[0.12em] text-white hover:bg-[#c10500] sm:inline-flex"
           >
             {joinLabel}
@@ -186,7 +186,7 @@ export function SiteHeader({
               </button>
             </div>
             <Link
-              href="/book"
+              href="/book-now"
               onClick={() => setOpen(false)}
               className="rounded-full bg-[#e10600] px-3 py-1.5 font-display text-xs uppercase tracking-[0.12em] text-white"
             >
@@ -195,7 +195,7 @@ export function SiteHeader({
           </div>
           <div className="flex items-center justify-between border-t border-black/10 py-3">
             {role === "admin" ? <Link href="/studio" onClick={() => setOpen(false)} className="text-sm font-semibold text-[#315e50]">Studio workspace →</Link> : <span />}
-            {role ? <form action={logout}><button className="text-sm font-medium text-black/55">{logoutLabel}</button></form> : <Link href="/login" onClick={() => setOpen(false)} className="text-sm font-medium text-black/55">{loginLabel}</Link>}
+            {role ? <form action={logout}><button className="text-sm font-medium text-black/55">{logoutLabel}</button></form> : <Link href="/log-in" onClick={() => setOpen(false)} className="text-sm font-medium text-black/55">{loginLabel}</Link>}
           </div>
         </div>
       </div>

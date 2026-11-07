@@ -90,13 +90,13 @@ export function HeroCarousel() {
             </h1>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
-                href="/book"
+                href="/book-now"
                 className="rounded-full bg-white px-5 py-2.5 text-sm font-medium text-lagoon shadow-sm transition hover:bg-foam"
               >
                 See the class
               </Link>
               <Link
-                href="/packages"
+                href="/classes"
                 className="rounded-full border border-white/35 px-5 py-2.5 text-sm text-white transition hover:bg-white/10"
               >
                 Class packs
