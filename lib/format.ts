@@ -5,6 +5,15 @@ export function formatMoney(cents: number) {
   }).format(cents / 100);
 }
 
+export function discountCents(priceCents: number, percent: number) {
+  if (percent <= 0 || priceCents <= 0) return 0;
+  return Math.min(priceCents, Math.round((priceCents * percent) / 100));
+}
+
+export function priceAfterPercent(priceCents: number, percent: number) {
+  return priceCents - discountCents(priceCents, percent);
+}
+
 export function formatWhen(iso: string, timeZone: string, locale: "en" | "vi" = "en") {
   return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-SG", {
     timeZone,

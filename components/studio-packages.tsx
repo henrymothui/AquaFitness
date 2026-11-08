@@ -30,7 +30,7 @@ export function StudioPackages({
     <>
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1>Packages</h1>
+          <h1>Package</h1>
           <p className="mt-2 text-sm text-slate-500">Manage class credits, pricing, and booking access.</p>
         </div>
         <button type="button" onClick={() => setAdding(true)} className={buttonClass}>Add package</button>
@@ -56,8 +56,8 @@ export function StudioPackages({
                     <p className="mt-1 text-sm font-semibold text-slate-700">{formatMoney(item.price_cents)}</p>
                   </div>
                   <div className="flex shrink-0 gap-2">
-                    <button type="button" onClick={() => setEditing(item)} className="rounded-lg border border-[#dce4e9] px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Quick edit</button>
-                    <Link href={`/studio/package/${item.id}`} className="rounded-lg border border-[#dce4e9] px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Full editor</Link>
+                    <button type="button" onClick={() => setEditing(item)} className="inline-flex h-9 items-center rounded-lg border border-[#dce4e9] px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 md:h-auto md:py-1.5">Quick edit</button>
+                    <Link href={`/studio/pricing/package/${item.id}`} className="inline-flex h-9 items-center rounded-lg border border-[#dce4e9] px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 md:h-auto md:py-1.5">Full editor</Link>
                   </div>
                 </div>
                 <p className="mt-3 min-h-12 text-sm leading-6 text-slate-600">{item.description || "No description added."}</p>
@@ -73,12 +73,12 @@ export function StudioPackages({
 
       {open ? (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 p-4"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 p-0 sm:grid sm:place-items-center sm:p-4"
           onClick={(event) => {
             if (event.target === event.currentTarget) close();
           }}
         >
-          <section role="dialog" aria-modal="true" aria-labelledby="package-dialog-title" className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-6">
+          <section role="dialog" aria-modal="true" aria-labelledby="package-dialog-title" className="max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-t-2xl bg-white p-4 shadow-2xl sm:max-h-[90vh] sm:rounded-2xl sm:p-6">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h2 id="package-dialog-title">{pack ? `Edit ${pack.name}` : "Add package"}</h2>
@@ -87,7 +87,7 @@ export function StudioPackages({
               <button type="button" onClick={close} aria-label="Close" className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-xl text-slate-500 hover:bg-slate-100">×</button>
             </div>
             <form key={pack?.id ?? "new-package"} action={pack ? updatePackage : createPackage} className="grid gap-4">
-              <input type="hidden" name="return_to" value="/studio/package" />
+              <input type="hidden" name="return_to" value="/studio/pricing/package" />
               {pack ? <input type="hidden" name="id" value={pack.id} /> : null}
               <Field label="Name">
                 <input name="name" required defaultValue={pack?.name ?? ""} className={inputClass} placeholder="10 class pack" />

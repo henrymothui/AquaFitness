@@ -31,7 +31,7 @@ export async function checkoutBookings(formData: FormData) {
     redirect(`/book-now?error=${encodeURIComponent(messages.checkout)}`);
   }
 
-  for (const id of sessionIds) revalidatePath(`/studio/schedule/${id}`);
+  for (const id of sessionIds) revalidatePath(`/studio/courses/schedule/${id}`);
   revalidatePath("/my-account");
   revalidatePath("/book-now");
   const notice = sessionIds.length === 1 ? messages.bookedOne : messages.bookedMany.replace("{count}", String(sessionIds.length));

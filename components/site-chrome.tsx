@@ -16,6 +16,7 @@ export async function PublicHeader() {
     { href: "/careers", label: t.nav.careers },
     ...(role === "public" ? [{ href: "/my-account", label: t.nav.account }] : []),
     ...(role === "admin" ? [{ href: "/studio", label: "Studio" }] : []),
+    ...(role === "coach" ? [{ href: "/studio/check-in", label: "Studio" }] : []),
   ];
   return (
     <SiteHeader locale={locale} links={links} joinLabel={t.nav.join} languageLabel={t.nav.language} loginLabel={t.nav.login} logoutLabel={t.nav.logout} primaryLabel={t.nav.primary} menuLabel={t.nav.menu} role={role} />

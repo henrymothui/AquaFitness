@@ -19,7 +19,7 @@ export default async function EditPackagePage({
 
   return (
     <main className="max-w-xl">
-      <h1 className="text-4xl text-lagoon">{pack.name}</h1>
+      <h1 className="break-words text-2xl text-lagoon sm:text-4xl">{pack.name}</h1>
       <div className="mt-4">
         <Flash error={query.error} notice={query.notice} />
       </div>
@@ -33,7 +33,7 @@ export default async function EditPackagePage({
             <Field label="Description">
               <textarea name="description" rows={2} defaultValue={pack.description ?? ""} className={inputClass} />
             </Field>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-3">
               <Field label="Credits">
                 <input name="credit_count" type="number" min={1} max={200} defaultValue={pack.credit_count} required className={inputClass} />
               </Field>

@@ -1,5 +1,5 @@
 import { StudioPackages } from "@/components/studio-packages";
-import { CourseManagementNav } from "@/components/course-management-nav";
+import { PackageSectionNav } from "@/components/package-section-nav";
 import { Flash } from "@/components/ui";
 import { listClassTypes, listPackages } from "@/lib/queries";
 
@@ -16,7 +16,7 @@ export default async function PackagesStudioPage({
   return (
     <main className="grid gap-5">
       <Flash error={params.error} notice={params.notice} />
-      <CourseManagementNav />
+      <PackageSectionNav />
       <StudioPackages packages={packages} classes={classes} />
     </main>
   );

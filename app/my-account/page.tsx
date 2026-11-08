@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { AccountTabs } from "@/components/account-tabs";
 import { PublicHeader, SiteFooter } from "@/components/site-chrome";
-import { getCurrentAccount } from "@/lib/auth";
+import { accountHome, getCurrentAccount } from "@/lib/auth";
 import { availableCredits } from "@/lib/demo-member";
 import {
   customerBookings,
@@ -25,7 +25,7 @@ export default async function AccountPage({
   const query = await searchParams;
   const { locale, t } = await getI18n();
   const account = await getCurrentAccount();
-  if (account?.role === "admin") redirect("/studio");
+  if (account?.role === "admin" || account?.role === "coach") redirect(accountHome(account.role));
   if (account?.role !== "public") redirect("/log-in");
 
   const [customer, settings] = await Promise.all([

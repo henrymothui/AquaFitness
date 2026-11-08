@@ -2,6 +2,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rpc } from "@/lib/rpc";
+import { STUDIO_CREDIT_PACKAGE_ID } from "@/lib/studio-credit";
 
 export type StudioSettings = {
   name: string;
@@ -34,6 +35,7 @@ export type SessionView = {
   capacity: number;
   creditsRequired: number;
   instructor: string | null;
+  coachId: string | null;
   location: string | null;
   status: string;
   held: boolean;
@@ -79,6 +81,14 @@ export type Customer = {
   phone: string | null;
   notes: string | null;
   created_at: string;
+};
+
+export type CustomerAdminEvent = {
+  id: string;
+  action: string;
+  summary: string;
+  adminUsername: string;
+  createdAt: string;
 };
 
 export type SaleView = {
@@ -182,6 +192,45 @@ export async function getClassType(id: string) {
   return classes.find((classType) => classType.id === id) ?? null;
 }
 
+export type CoachAccount = {
+  id: string;
+  fullName: string;
+  username: string;
+  active: boolean;
+  createdAt: string;
+  assignedCourses: number;
+};
+
+export async function listCoaches() {
+  const supabase = createAdminClient();
+  const [coachResult, sessionResult] = await Promise.all([
+    supabase.from("coaches").select("id, full_name, username, active, created_at").order("full_name"),
+    supabase.from("sessions").select("coach_id").eq("status", "scheduled").not("coach_id", "is", null),
+  ]);
+  if (coachResult.error) throw new Error(coachResult.error.message);
+  if (sessionResult.error) throw new Error(sessionResult.error.message);
+  const counts = new Map<string, number>();
+  for (const row of sessionResult.data ?? []) {
+    if (!row.coach_id) continue;
+    counts.set(row.coach_id, (counts.get(row.coach_id) ?? 0) + 1);
+  }
+  return (coachResult.data ?? []).map((coach) => ({
+    id: coach.id,
+    fullName: coach.full_name,
+    username: coach.username,
+    active: coach.active,
+    createdAt: coach.created_at,
+    assignedCourses: counts.get(coach.id) ?? 0,
+  }));
+}
+
+const sessionSelectWithCoach = `
+  id, class_type_id, title, description, image_path,
+  starts_at, ends_at, capacity, credits_required, instructor, location, coach_id, status, held,
+  class_types (name, description, image_path, duration_minutes, color),
+  coaches (full_name)
+`;
+
 const sessionSelect = `
   id, class_type_id, title, description, image_path,
   starts_at, ends_at, capacity, credits_required, instructor, location, status, held,
@@ -205,9 +254,11 @@ type SessionRow = {
   capacity: number;
   credits_required: number;
   instructor?: string | null;
+  coach_id?: string | null;
   location?: string | null;
   status: string;
   held: boolean;
+  coaches?: { full_name: string } | { full_name: string }[] | null;
   class_types:
     | {
         name: string;
@@ -241,7 +292,8 @@ function mapSession(row: SessionRow): SessionView {
     endsAt: row.ends_at,
     capacity: row.capacity,
     creditsRequired: row.credits_required,
-    instructor: row.instructor ?? null,
+    coachId: row.coach_id ?? null,
+    instructor: one(row.coaches)?.full_name ?? row.instructor ?? null,
     location: row.location ?? null,
     status: row.status,
     held: row.held,
@@ -252,7 +304,10 @@ function mapSession(row: SessionRow): SessionView {
 async function sessionRows(
   buildQuery: (selection: string) => PromiseLike<{ data: unknown; error: QueryError | null }>,
 ) {
-  let result = await buildQuery(sessionSelect);
+  let result = await buildQuery(sessionSelectWithCoach);
+  if (result.error && /coach/i.test(result.error.message)) {
+    result = await buildQuery(sessionSelect);
+  }
   if (
     result.error &&
     (result.error.message.includes("sessions.instructor") || result.error.message.includes("sessions.location"))
@@ -352,7 +407,7 @@ const getCachedPackages = unstable_cache(async (includeInactive: boolean) => {
     }[];
   }>(query);
 
-  return data.map((row) => ({
+  return data.flatMap((row) => row.id === STUDIO_CREDIT_PACKAGE_ID ? [] : [{
     id: row.id,
     name: row.name,
     description: row.description,
@@ -365,7 +420,7 @@ const getCachedPackages = unstable_cache(async (includeInactive: boolean) => {
     classNames: row.package_class_types
       .map((item) => one(item.class_types)?.name)
       .filter((name): name is string => Boolean(name)),
-  })) satisfies PackageView[];
+  }]) satisfies PackageView[];
 }, ["studio-packages"], { revalidate: 120, tags: ["studio:packages"] });
 
 export function listPackages(includeInactive = false) {
@@ -382,7 +437,7 @@ export async function getPackage(id: string) {
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (!data) return null;
+  if (!data || data.id === STUDIO_CREDIT_PACKAGE_ID) return null;
   const row = data as {
     id: string;
     name: string;
@@ -445,6 +500,59 @@ const getCachedDiscounts = unstable_cache(async (includeInactive: boolean) => {
 
 export function listDiscounts(includeInactive = false) {
   return getCachedDiscounts(includeInactive);
+}
+
+export type DiscountPlan = {
+  id: string;
+  name: string;
+  percent: number;
+  active: boolean;
+};
+
+export type GrantedDiscount = DiscountPlan & {
+  customerId: string;
+};
+
+function isMissingDiscountSchema(message: string) {
+  return /discount_plans|customer_discounts/.test(message) &&
+    /does not exist|schema cache|could not find/i.test(message);
+}
+
+const getCachedDiscountPlans = unstable_cache(async (includeInactive: boolean) => {
+  const supabase = createAdminClient();
+  let query = supabase.from("discount_plans").select("id, name, percent, active").order("name");
+  if (!includeInactive) query = query.eq("active", true);
+  const result = await query;
+  if (result.error) {
+    if (isMissingDiscountSchema(result.error.message)) return [] satisfies DiscountPlan[];
+    throw new Error(result.error.message);
+  }
+  return (result.data ?? []) satisfies DiscountPlan[];
+}, ["studio-discount-plans"], { revalidate: 120, tags: ["studio:discount-plans"] });
+
+export function listDiscountPlans(includeInactive = false) {
+  return getCachedDiscountPlans(includeInactive);
+}
+
+export async function listGrantedDiscounts() {
+  const supabase = createAdminClient();
+  const result = await supabase
+    .from("customer_discounts")
+    .select("customer_id, discount_plans(id, name, percent, active)");
+  if (result.error) {
+    if (isMissingDiscountSchema(result.error.message)) return [] satisfies GrantedDiscount[];
+    throw new Error(result.error.message);
+  }
+  return (result.data ?? []).flatMap((row) => {
+    const plan = one(row.discount_plans as DiscountPlan | DiscountPlan[] | null);
+    if (!plan) return [];
+    return [{ customerId: row.customer_id as string, ...plan }];
+  });
+}
+
+export async function getCustomerDiscount(customerId: string) {
+  const grants = await listGrantedDiscounts();
+  return grants.find((grant) => grant.customerId === customerId) ?? null;
 }
 
 export async function listCustomers(search = "") {
@@ -594,6 +702,29 @@ export async function getCustomer(id: string) {
   return legacyResult.data ? withEmptyCustomerProfile(legacyResult.data) : null;
 }
 
+export async function customerAdminEvents(customerId: string) {
+  const supabase = createAdminClient();
+  const result = await supabase
+    .from("customer_admin_events")
+    .select("id, action, summary, admin_username, created_at")
+    .eq("customer_id", customerId)
+    .order("created_at", { ascending: false })
+    .limit(40);
+  if (result.error) {
+    if (/customer_admin_events/i.test(result.error.message) && /does not exist|schema cache|could not find/i.test(result.error.message)) {
+      return [];
+    }
+    throw new Error(result.error.message);
+  }
+  return (result.data ?? []).map((row) => ({
+    id: row.id,
+    action: row.action,
+    summary: row.summary,
+    adminUsername: row.admin_username,
+    createdAt: row.created_at,
+  })) satisfies CustomerAdminEvent[];
+}
+
 export async function getCustomerByEmail(email: string) {
   const supabase = createAdminClient();
   const result = await supabase
@@ -634,6 +765,7 @@ export async function customerSales(customerId: string) {
         "id, credits_total, credits_used, price_cents, discount_cents, final_price_cents, expires_at, status, purchased_at, packages(name)",
       )
       .eq("customer_id", customerId)
+      .neq("package_id", STUDIO_CREDIT_PACKAGE_ID)
       .order("purchased_at", { ascending: false }),
   );
   return data.map((row) => ({
@@ -765,6 +897,7 @@ export async function customerBillingHistory() {
       supabase
         .from("customer_packages")
         .select("id, customer_id, credits_total, credits_used, price_cents, discount_cents, final_price_cents, expires_at, status, purchased_at, packages(name), customers(full_name, email)")
+        .neq("package_id", STUDIO_CREDIT_PACKAGE_ID)
         .order("purchased_at", { ascending: false })
         .order("id", { ascending: false })
         .range(offset, offset + 499),
@@ -881,6 +1014,8 @@ export async function rostersForSessions(sessionIds: string[]) {
     id: string;
     session_id: string;
     status: string;
+    status_set_by_username: string | null;
+    status_set_at: string | null;
     customers: { full_name: string; email: string | null } | { full_name: string; email: string | null }[] | null;
   };
   const data: ParticipantRow[] = [];
@@ -890,7 +1025,7 @@ export async function rostersForSessions(sessionIds: string[]) {
       const page = await rows<ParticipantRow>(
         supabase
           .from("bookings")
-          .select("id, session_id, status, customers(full_name, email)")
+          .select("id, session_id, status, status_set_by_username, status_set_at, customers(full_name, email)")
           .in("session_id", batch)
           .neq("status", "cancelled")
           .order("booked_at")
@@ -906,6 +1041,8 @@ export async function rostersForSessions(sessionIds: string[]) {
     status: row.status,
     customerName: one(row.customers)?.full_name ?? "Customer",
     customerEmail: one(row.customers)?.email ?? "",
+    statusSetBy: row.status === "booked" ? null : row.status_set_by_username,
+    statusSetAt: row.status === "booked" ? null : row.status_set_at,
   }));
 }
 

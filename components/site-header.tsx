@@ -194,7 +194,7 @@ export function SiteHeader({
             </Link>
           </div>
           <div className="flex items-center justify-between border-t border-black/10 py-3">
-            {role === "admin" ? <Link href="/studio" onClick={() => setOpen(false)} className="text-sm font-semibold text-[#315e50]">Studio workspace →</Link> : <span />}
+            {role === "admin" || role === "coach" ? <Link href={role === "coach" ? "/studio/check-in" : "/studio"} onClick={() => setOpen(false)} className="text-sm font-semibold text-[#315e50]">Studio workspace →</Link> : <span />}
             {role ? <form action={logout}><button className="text-sm font-medium text-black/55">{logoutLabel}</button></form> : <Link href="/log-in" onClick={() => setOpen(false)} className="text-sm font-medium text-black/55">{loginLabel}</Link>}
           </div>
         </div>

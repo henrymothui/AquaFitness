@@ -21,10 +21,10 @@ export default async function EditClassPage({
   if (!classType) notFound();
 
   return (
-    <main className="grid max-w-xl gap-6">
-      <h1 className="text-4xl text-lagoon">{classType.name}</h1>
+    <main className="grid max-w-xl gap-4 sm:gap-6">
+      <h1 className="break-words text-2xl text-lagoon sm:text-4xl">{classType.name}</h1>
       <Flash error={query.error} notice={query.notice} />
-      <ClassImage path={classType.image_path} name={classType.name} className="h-48 rounded-3xl" />
+      <ClassImage path={classType.image_path} name={classType.name} className="h-40 rounded-2xl sm:h-48 sm:rounded-3xl" />
       <Panel title="Edit course type">
         <form action={updateClass} className="grid gap-4">
           <input type="hidden" name="id" value={classType.id} />

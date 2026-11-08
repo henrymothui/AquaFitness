@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BrandMark, WaterDropIcon } from "@/components/ui";
-import { getCurrentRole } from "@/lib/auth";
+import { accountHome, getCurrentRole } from "@/lib/auth";
 import { getI18n } from "@/lib/i18n";
 import { LoginForm, LoginLocaleControl as LocaleButton } from "@/app/login/login-form";
 
@@ -13,7 +13,7 @@ export async function generateMetadata() {
 
 export default async function LoginPage() {
   const role = await getCurrentRole();
-  if (role) redirect(role === "admin" ? "/studio" : "/");
+  if (role) redirect(accountHome(role));
   const { locale, t } = await getI18n();
   const copy = t.publicPages.login;
 

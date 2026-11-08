@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { authenticateAdminAccount, logoutAccount, type AppAccount } from "@/lib/auth";
+import { accountHome, authenticateAdminAccount, authenticateCoachAccount, logoutAccount, type AppAccount } from "@/lib/auth";
 import { authenticateMember, registerMember } from "@/lib/user-management";
 import { getI18n } from "@/lib/i18n";
 
@@ -16,6 +16,7 @@ export async function login(_state: LoginState, formData: FormData): Promise<Log
   let account: AppAccount | null;
   try {
     account = await authenticateAdminAccount(username, password);
+    if (!account) account = await authenticateCoachAccount(username, password);
     if (!account && username.includes("@")) {
       account = await authenticateMember(username, password) as AppAccount | null;
     }
@@ -28,7 +29,7 @@ export async function login(_state: LoginState, formData: FormData): Promise<Log
   if (!account) {
     return { error: errors.credentials };
   }
-  redirect(account.role === "admin" ? "/studio" : "/");
+  redirect(accountHome(account.role));
 }
 
 export type RegistrationState = { error?: string; success?: string } | undefined;

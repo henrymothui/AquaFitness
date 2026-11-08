@@ -1,12 +1,18 @@
 import { notFound } from "next/navigation";
 import { Flash, Field, Panel, buttonClass, inputClass } from "@/components/ui";
 import { recordSale, updateCustomer } from "@/app/studio/actions";
-import { creditsLabel, formatMoney, formatWhen } from "@/lib/format";
+import { ClientCreditTools } from "@/components/client-credit-tools";
+import { creditsLabel, formatMoney, formatWhen, priceAfterPercent } from "@/lib/format";
 import {
+  customerAdminEvents,
   customerBookings,
+  customerCreditBalances,
   customerSales,
   getCustomer,
+  getCustomerDiscount,
   getSettings,
+  listAllSessions,
+  listDiscountPlans,
   listDiscounts,
   listPackages,
 } from "@/lib/queries";
@@ -22,19 +28,33 @@ export default async function CustomerPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const [customer, sales, bookings, packages, discounts, settings] = await Promise.all([
+  const [customer, sales, bookings, packages, discounts, settings, events, balances, sessions, discountPlans, grantedDiscount] = await Promise.all([
     getCustomer(id),
     customerSales(id),
     customerBookings(id),
     listPackages(false),
     listDiscounts(false),
     getSettings(),
+    customerAdminEvents(id),
+    customerCreditBalances([id]),
+    listAllSessions(),
+    listDiscountPlans(true),
+    getCustomerDiscount(id),
   ]);
   if (!customer) notFound();
+  const standingDiscount = grantedDiscount?.active ? grantedDiscount : null;
+  const courses = sessions
+    .filter((session) => session.status === "scheduled" && new Date(session.endsAt).getTime() > Date.now())
+    .slice(0, 150)
+    .map((session) => ({
+      id: session.id,
+      creditsRequired: session.creditsRequired,
+      label: `${session.title} · ${formatWhen(session.startsAt, settings.timezone)} · ${session.creditsRequired} credit${session.creditsRequired === 1 ? "" : "s"}`,
+    }));
 
   return (
-    <main className="grid gap-6">
-      <h1 className="text-4xl text-lagoon">{customer.full_name}</h1>
+    <main className="grid gap-4 sm:gap-6">
+      <h1 className="break-words text-2xl text-lagoon sm:text-4xl">{customer.full_name}</h1>
       <Flash error={query.error} notice={query.notice} />
       <div className="grid gap-6 lg:grid-cols-2">
         <Panel title="Details">
@@ -76,16 +96,20 @@ export default async function CustomerPage({
               <input type="hidden" name="customer_id" value={customer.id} />
               <Field label="Package">
                 <select name="package_id" required className={inputClass}>
-                  {packages.map((pack) => (
-                    <option key={pack.id} value={pack.id}>
-                      {pack.name} · {pack.credit_count} credits · {formatMoney(pack.price_cents)}
-                    </option>
-                  ))}
+                  {packages.map((pack) => {
+                    const price = standingDiscount ? priceAfterPercent(pack.price_cents, standingDiscount.percent) : pack.price_cents;
+                    return (
+                      <option key={pack.id} value={pack.id}>
+                        {pack.name} · {pack.credit_count} credits · {formatMoney(price)}
+                        {standingDiscount ? ` · ${standingDiscount.percent}% off` : ""}
+                      </option>
+                    );
+                  })}
                 </select>
               </Field>
-              <Field label="Discount">
+              <Field label="Discount" hint={standingDiscount ? `Leave this blank to charge the ${standingDiscount.name} price. A choice here replaces that discount for this sale.` : "Leave this blank unless this sale needs a one-off discount."}>
                 <select name="discount_id" className={inputClass} defaultValue="">
-                  <option value="">No discount</option>
+                  <option value="">{standingDiscount ? `${standingDiscount.name} · ${standingDiscount.percent}% off` : "No discount"}</option>
                   {discounts.map((discount) => (
                     <option key={discount.id} value={discount.id}>
                       {discount.name}
@@ -102,6 +126,18 @@ export default async function CustomerPage({
           )}
         </Panel>
       </div>
+      <Panel title="Credits and courses">
+        <ClientCreditTools
+          customerId={customer.id}
+          liveCredits={balances.get(customer.id) ?? 0}
+          courses={courses}
+          events={events}
+          returnTo={`/studio/directory/${customer.id}`}
+          timezone={settings.timezone}
+          discountPlans={discountPlans}
+          grantedDiscount={grantedDiscount}
+        />
+      </Panel>
       <Panel title="Packages">
         <ul className="grid gap-3">
           {sales.length === 0 ? (

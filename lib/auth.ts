@@ -4,7 +4,7 @@ import { createHash, randomBytes, scryptSync, timingSafeEqual } from "node:crypt
 import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export type AppRole = "admin" | "public";
+export type AppRole = "admin" | "public" | "coach";
 export type AppAccount = {
   id: string;
   username: string;
@@ -53,6 +53,12 @@ async function startSession(subjectId: string, role: AppRole) {
   });
 }
 
+export function accountHome(role: AppRole | null) {
+  if (role === "admin") return "/studio";
+  if (role === "coach") return "/studio/check-in";
+  return "/";
+}
+
 export async function authenticateAdminAccount(username: string, password: string): Promise<AppAccount | null> {
   const { data: account, error } = await createAdminClient()
     .from("admin_accounts")
@@ -64,6 +70,19 @@ export async function authenticateAdminAccount(username: string, password: strin
 
   await startSession(account.id, "admin");
   return { id: account.id, username: account.username, role: "admin", customer_id: null };
+}
+
+export async function authenticateCoachAccount(username: string, password: string): Promise<AppAccount | null> {
+  const { data: coach, error } = await createAdminClient()
+    .from("coaches")
+    .select("id, username, password_hash, active")
+    .eq("username", username)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!coach || !coach.active || !verifyPassword(password, coach.password_hash)) return null;
+
+  await startSession(coach.id, "coach");
+  return { id: coach.id, username: coach.username, role: "coach", customer_id: null };
 }
 
 export async function startMemberSession(customer: { id: string; email: string | null }, authUserId: string) {
@@ -98,6 +117,16 @@ export async function getCurrentAccount(): Promise<AppAccount | null> {
       .maybeSingle();
     if (accountError) throw new Error(accountError.message);
     return account ? { ...account, role: "admin", customer_id: null } : null;
+  }
+
+  if (session.role === "coach") {
+    const { data: coach, error: coachError } = await supabase
+      .from("coaches")
+      .select("id, username, active")
+      .eq("id", session.subject_id)
+      .maybeSingle();
+    if (coachError) throw new Error(coachError.message);
+    return coach?.active ? { id: coach.id, username: coach.username, role: "coach", customer_id: null } : null;
   }
 
   const { data: customer, error: customerError } = await supabase

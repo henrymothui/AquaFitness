@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Flash, inputClass, quietButtonClass } from "@/components/ui";
-import { formatMoney } from "@/lib/format";
-import { customerBillingHistory, customerCreditBalances, customerCreditTotals, listCustomers } from "@/lib/queries";
+import { ExportLink, Flash } from "@/components/ui";
+import { formatMoney, formatWhen } from "@/lib/format";
+import { customerBillingHistory, customerCreditBalances, customerCreditTotals, getSettings, listAllSessions, listCustomers, listDiscountPlans, listGrantedDiscounts } from "@/lib/queries";
 import { redirect } from "next/navigation";
-import { StudioCustomerDirectory } from "@/components/studio-customer-directory";
+import { AddCustomerButton, StudioCustomerDirectory } from "@/components/studio-customer-directory";
 import { CustomerSectionNav } from "@/components/customer-section-nav";
 
 export const metadata = { title: "Directory" };
@@ -27,30 +27,35 @@ export default async function CustomersPage({
   const billingTab = params.tab === "billing";
   const customers = billingTab ? [] : await listCustomers(params.q ?? "");
   const customerIds = customers.map((customer) => customer.id);
-  const [creditBalances, creditTotals, billing] = await Promise.all([
+  const [creditBalances, creditTotals, billing, settings, sessions, discountPlans, grantedDiscounts] = await Promise.all([
     billingTab ? Promise.resolve(new Map<string, number>()) : customerCreditBalances(customerIds),
     billingTab ? Promise.resolve(new Map<string, { purchased: number; consumed: number }>()) : customerCreditTotals(customerIds),
     billingTab ? customerBillingHistory() : Promise.resolve([]),
+    billingTab ? Promise.resolve(null) : getSettings(),
+    billingTab ? Promise.resolve([]) : listAllSessions(),
+    billingTab ? Promise.resolve([]) : listDiscountPlans(true),
+    billingTab ? Promise.resolve([]) : listGrantedDiscounts(),
   ]);
+  const courses = sessions
+    .filter((session) => session.status === "scheduled" && new Date(session.endsAt).getTime() > Date.now())
+    .slice(0, 150)
+    .map((session) => ({
+      id: session.id,
+      creditsRequired: session.creditsRequired,
+      label: `${session.title} · ${formatWhen(session.startsAt, settings?.timezone ?? "UTC")} · ${session.creditsRequired} credit${session.creditsRequired === 1 ? "" : "s"}`,
+    }));
 
   return (
     <main className="grid gap-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
         <CustomerSectionNav active="directory" />
         {billingTab ? (
-          <a href="/studio/directory/billing/export" className={quietButtonClass}>
-            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="mr-2 h-4 w-4">
-              <path d="M10 2.5v9m0 0 3.25-3.25M10 11.5 6.75 8.25M3.5 13v3.25h13V13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Export billing CSV
-          </a>
+          <ExportLink href="/studio/directory/billing/export">Export billing</ExportLink>
         ) : (
-          <a href="/studio/directory/export" className={quietButtonClass}>
-            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="mr-2 h-4 w-4">
-              <path d="M10 2.5v9m0 0 3.25-3.25M10 11.5 6.75 8.25M3.5 13v3.25h13V13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Export all to CSV
-          </a>
+          <div className="flex items-center gap-2">
+            <AddCustomerButton />
+            <ExportLink href="/studio/directory/export" className="w-[8.75rem] justify-center">Export all</ExportLink>
+          </div>
         )}
       </div>
 
@@ -100,32 +105,22 @@ export default async function CustomersPage({
         </section>
       ) : <div>
         <section className="overflow-hidden rounded-xl border border-[#e5e9ed] bg-white">
-          <div className="flex flex-col gap-3 border-b border-[#edf0f2] p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-            <form className="flex w-full gap-2 sm:max-w-lg" action="/studio/directory">
-              <input
-                name="q"
-                defaultValue={params.q ?? ""}
-                placeholder="Search name, email, or phone"
-                aria-label="Search customers by name, email, or phone"
-                className={inputClass}
-              />
-              <button className={quietButtonClass}>Search</button>
-            </form>
-            <span className="text-xs text-slate-400">Live credit reflects active, unexpired packs</span>
-          </div>
-
-          {customers.length === 0 && params.q ? (
-            <p className="px-5 py-12 text-center text-sm text-slate-500">No customers match your search.</p>
-          ) : (
-            <StudioCustomerDirectory customers={customers.map((customer) => ({
+          <StudioCustomerDirectory
+            searchQuery={params.q ?? ""}
+            emptyLabel={params.q ? "No customers match your search." : "No customers have been registered yet."}
+            courses={courses}
+            timezone={settings?.timezone ?? "UTC"}
+            discountPlans={discountPlans}
+            grantedDiscounts={grantedDiscounts}
+            customers={customers.map((customer) => ({
               ...customer,
               username: customer.username ?? null,
               joinedDate: joinedDate(customer.created_at),
               creditsPurchased: creditTotals.get(customer.id)?.purchased ?? 0,
               creditsConsumed: creditTotals.get(customer.id)?.consumed ?? 0,
               liveCredits: creditBalances.get(customer.id) ?? 0,
-            }))} />
-          )}
+            }))}
+          />
         </section>
       </div>}
     </main>

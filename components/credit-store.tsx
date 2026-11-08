@@ -4,9 +4,10 @@ import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { placeCreditOrder } from "@/app/book/actions";
 import { startPageLoading } from "@/components/page-loading";
+import { priceAfterPercent } from "@/lib/format";
 import type { Dictionary, Locale } from "@/lib/i18n";
 
-type CreditPack = { id: string; name: string; credits: number; price: number; note: string };
+type CreditPack = { id: string; name: string; credits: number; price: number; listPrice: number; note: string };
 type Stage = "shop" | "cart" | "payment";
 
 function PlaceOrderButton({ label }: { label: string }) {
@@ -49,7 +50,12 @@ function SampleQrCode({ locale }: { locale: Locale }) {
   );
 }
 
-export function CreditStore({ packs, copy, locale }: { packs: CreditPack[]; copy: Dictionary["publicPages"]["credits"]; locale: Locale }) {
+function linePrice(pack: CreditPack, quantity: number, percent: number) {
+  const list = pack.listPrice * quantity;
+  return percent > 0 ? priceAfterPercent(list, percent) : list;
+}
+
+export function CreditStore({ packs, copy, locale, discountNote = null, discountPercent = 0 }: { packs: CreditPack[]; copy: Dictionary["publicPages"]["credits"]; locale: Locale; discountNote?: string | null; discountPercent?: number }) {
   const [stage, setStage] = useState<Stage>("shop");
   const [cart, setCart] = useState<Record<string, number>>({});
   const items = packs.flatMap((pack) => {
@@ -58,7 +64,7 @@ export function CreditStore({ packs, copy, locale }: { packs: CreditPack[]; copy
   });
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const credits = items.reduce((sum, item) => sum + item.pack.credits * item.quantity, 0);
-  const total = items.reduce((sum, item) => sum + item.pack.price * item.quantity, 0);
+  const total = items.reduce((sum, item) => sum + linePrice(item.pack, item.quantity, discountPercent), 0);
   const bestValuePackId = packs.length > 1
     ? packs.reduce((best, pack) => pack.price / pack.credits < best.price / best.credits ? pack : best).id
     : null;
@@ -91,6 +97,8 @@ export function CreditStore({ packs, copy, locale }: { packs: CreditPack[]; copy
         </ol>
       </div>
 
+      {discountNote ? <p className="border-b border-black/10 bg-[#fff8f7] px-5 py-3 text-sm text-[#9f1d1a] sm:px-8">{discountNote}</p> : null}
+
       {stage === "shop" ? <div className="p-5 sm:p-8">
         <div className="grid gap-4 md:grid-cols-3">
           {packs.map((pack) => <article key={pack.id} className={`relative flex flex-col rounded-2xl border p-5 ${pack.id === bestValuePackId ? "border-[#e10600]/35 bg-[#fff8f7]" : "border-black/10 bg-white"}`}>
@@ -99,6 +107,7 @@ export function CreditStore({ packs, copy, locale }: { packs: CreditPack[]; copy
             <h2 className="mt-3 font-display text-2xl font-semibold uppercase">{pack.name}</h2>
             <p className="mt-2 min-h-10 text-xs leading-5 text-black/50">{pack.note}</p>
             <p className="mt-5 font-display text-3xl font-semibold">{money(pack.price, locale)}</p>
+            {pack.listPrice > pack.price ? <p className="mt-1 text-sm text-black/35 line-through">{money(pack.listPrice, locale)}</p> : null}
             <p className="mt-1 text-[11px] text-black/40">{money(Math.round(pack.price / pack.credits), locale)} / {copy.credit}</p>
             <button type="button" onClick={() => add(pack.id)} className="mt-6 rounded-full bg-[#e10600] px-5 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-[#c10500]">{copy.add} <span aria-hidden="true">+</span></button>
           </article>)}
@@ -109,7 +118,7 @@ export function CreditStore({ packs, copy, locale }: { packs: CreditPack[]; copy
       {stage === "cart" ? <div className="grid gap-8 p-5 sm:p-8 lg:grid-cols-[1fr_20rem]">
         <div>
           <div className="flex items-end justify-between border-b border-black/10 pb-4"><div><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#e10600]">{count} {count === 1 ? copy.item : copy.items}</p><h2 className="mt-1 font-display text-3xl font-semibold uppercase">{copy.cart}</h2></div><button type="button" onClick={() => setStage("shop")} className="text-xs font-semibold text-black/45 hover:text-[#e10600]">{copy.addMore}</button></div>
-          {items.length ? <ul className="divide-y divide-black/[0.07]">{items.map(({ pack, quantity }) => <li key={pack.id} className="flex flex-wrap items-center justify-between gap-4 py-5"><div><h3 className="font-semibold">{pack.name}</h3><p className="mt-1 text-xs text-black/45">{pack.credits * quantity} {copy.credits} · {money(pack.price, locale)} / {copy.each}</p></div><div className="flex items-center gap-4"><div className="flex items-center rounded-full border border-black/10"><button type="button" aria-label={locale === "vi" ? `Xóa một ${pack.name}` : `Remove one ${pack.name}`} onClick={() => setQuantity(pack.id, quantity - 1)} className="h-9 w-9 text-lg text-black/55">−</button><span className="w-6 text-center text-sm font-semibold">{quantity}</span><button type="button" aria-label={locale === "vi" ? `Thêm một ${pack.name}` : `Add one ${pack.name}`} onClick={() => setQuantity(pack.id, quantity + 1)} className="h-9 w-9 text-lg text-black/55">+</button></div><span className="w-20 text-right text-sm font-semibold">{money(pack.price * quantity, locale)}</span></div></li>)}</ul> : <div className="py-12 text-center"><p className="text-sm text-black/50">{copy.emptyCart}</p><button type="button" onClick={() => setStage("shop")} className="mt-4 text-xs font-semibold uppercase tracking-wide text-[#e10600]">{copy.browse}</button></div>}
+          {items.length ? <ul className="divide-y divide-black/[0.07]">{items.map(({ pack, quantity }) => <li key={pack.id} className="flex flex-wrap items-center justify-between gap-4 py-5"><div><h3 className="font-semibold">{pack.name}</h3><p className="mt-1 text-xs text-black/45">{pack.credits * quantity} {copy.credits} · {pack.listPrice > pack.price ? <span className="line-through">{money(pack.listPrice, locale)}</span> : null} {money(pack.price, locale)} / {copy.each}</p></div><div className="flex items-center gap-4"><div className="flex items-center rounded-full border border-black/10"><button type="button" aria-label={locale === "vi" ? `Xóa một ${pack.name}` : `Remove one ${pack.name}`} onClick={() => setQuantity(pack.id, quantity - 1)} className="h-9 w-9 text-lg text-black/55">−</button><span className="w-6 text-center text-sm font-semibold">{quantity}</span><button type="button" aria-label={locale === "vi" ? `Thêm một ${pack.name}` : `Add one ${pack.name}`} onClick={() => setQuantity(pack.id, quantity + 1)} className="h-9 w-9 text-lg text-black/55">+</button></div><span className="w-20 text-right text-sm font-semibold">{money(linePrice(pack, quantity, discountPercent), locale)}</span></div></li>)}</ul> : <div className="py-12 text-center"><p className="text-sm text-black/50">{copy.emptyCart}</p><button type="button" onClick={() => setStage("shop")} className="mt-4 text-xs font-semibold uppercase tracking-wide text-[#e10600]">{copy.browse}</button></div>}
         </div>
         <aside className="h-fit rounded-2xl bg-[#f7f8f8] p-5"><p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-black/40">{copy.summary}</p><div className="mt-5 flex justify-between text-sm text-black/55"><span>{copy.credits}</span><span>{credits}</span></div><div className="mt-3 flex justify-between border-t border-black/10 pt-4 text-base font-semibold"><span>{copy.total}</span><span>{money(total, locale)}</span></div><button type="button" disabled={!items.length} onClick={() => setStage("payment")} className="mt-5 w-full rounded-full bg-[#e10600] px-5 py-4 text-xs font-semibold uppercase tracking-[0.13em] text-white transition hover:bg-[#c10500] disabled:cursor-not-allowed disabled:bg-black/15">{copy.continue}</button><p className="mt-3 text-center text-[10px] leading-4 text-black/40">{copy.manualConfirm}</p></aside>
       </div> : null}

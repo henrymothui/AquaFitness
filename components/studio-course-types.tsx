@@ -65,8 +65,8 @@ export function StudioCourseTypes({ courses, returnTo, embedded = false }: { cou
                     <span className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate-500"><i className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />Schedule color</span>
                   </div>
                   <div className="flex shrink-0 gap-2">
-                    <button type="button" onClick={() => setEditing(item)} className="rounded-lg border border-[#dce4e9] px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50">Edit</button>
-                    <button type="button" onClick={() => setDeleting(item)} className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-50">Delete</button>
+                    <button type="button" onClick={() => setEditing(item)} className="inline-flex h-9 items-center rounded-lg border border-[#dce4e9] px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 md:h-auto md:py-1.5">Edit</button>
+                    <button type="button" onClick={() => setDeleting(item)} className="inline-flex h-9 items-center rounded-lg border border-red-200 px-3 text-sm font-medium text-red-700 hover:bg-red-50 md:h-auto md:py-1.5">Delete</button>
                   </div>
                 </div>
                 <p className="mt-3 min-h-12 text-sm leading-6 text-slate-600">{item.description || "No description added."}</p>
@@ -78,12 +78,12 @@ export function StudioCourseTypes({ courses, returnTo, embedded = false }: { cou
 
       {open ? (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 p-4"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 p-0 sm:grid sm:place-items-center sm:p-4"
           onClick={(event) => {
             if (event.target === event.currentTarget) close();
           }}
         >
-          <section role="dialog" aria-modal="true" aria-labelledby="course-type-dialog-title" className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl sm:p-6">
+          <section role="dialog" aria-modal="true" aria-labelledby="course-type-dialog-title" className="max-h-[92dvh] w-full max-w-xl overflow-y-auto rounded-t-2xl bg-white p-4 shadow-2xl sm:max-h-[90vh] sm:rounded-2xl sm:p-6">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <h2 id="course-type-dialog-title">{course ? `Edit ${course.name}` : "Add course"}</h2>
